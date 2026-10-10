@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import asdict, dataclass
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional
 
 
-def row_to_dict(row: Mapping[str, Any] | None) -> dict[str, Any] | None:
+def row_to_dict(row: Optional[Mapping[str, Any]]) -> Optional[dict[str, Any]]:
     return dict(row) if row is not None else None
 
 
@@ -19,33 +19,32 @@ class SearchResult:
     productName: str
     category: str
     simpleDefinition: str
-    typicalUse: str | None
+    typicalUse: Optional[str]
     labelCaution: str
     locationId: str
     locationName: str
     campusZone: str
-    siteDescription: str | None
-    latitude: float | None
-    longitude: float | None
+    siteDescription: Optional[str]
+    latitude: Optional[float]
+    longitude: Optional[float]
     availability: str
     quantityBand: str
     confidence: str
-    minutesSinceVerified: int | None
-    lastVerified: str | None
-    isOpen: bool | None
-    closesAt: str | None
+    minutesSinceVerified: Optional[int]
+    lastVerified: Optional[str]
+    isOpen: Optional[bool]
+    closesAt: Optional[str]
     closingSoon: bool
-    distanceKm: float | None
-    travelMinutes: int | None
+    distanceKm: Optional[float]
+    travelMinutes: Optional[int]
     reservationState: str
     reservationMinutes: int
-    retailSwipeStatus: str | None
-    paymentOptions: str | None
+    retailSwipeStatus: Optional[str]
+    paymentOptions: Optional[str]
     mealSwipeEligibleForFoodToday: bool
     ruExpressAcceptedToday: bool
-    quantityLimit: str | None
+    quantityLimit: Optional[str]
     score: float
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
-

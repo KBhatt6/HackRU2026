@@ -1,13 +1,20 @@
 # Frontend (Expo + Expo Router)
 
 Expo SDK 57, React 19.2, React Native 0.86, TypeScript ~6.0, Expo Router with
-typed routes and the React Compiler enabled (`experiments` in `app.json`).
+typed routes and the React Compiler enabled (`experiments` in `app.json`). The
+shared theme uses a dark interface with black backgrounds, charcoal surfaces,
+light text, muted borders, and light-red accents.
 
 Run `./run.sh` from the repository root for the combined setup, or run
 `cd frontend && npm install && npx expo start` separately, then scan the QR code with
 Expo Go. The backend must be reachable at `EXPO_PUBLIC_API_URL`
 (`frontend/.env`, copied from `.env.example`) — use the computer's **LAN IP** on
 a physical phone; `localhost` resolves to the phone itself.
+
+When `EXPO_PUBLIC_API_URL` is omitted, the app derives the API host from
+Expo's Metro host and uses port 5000. For a physical phone, explicitly set
+`EXPO_PUBLIC_API_URL=http://<computer-LAN-IP>:5000` if automatic discovery does
+not work.
 
 Checks: `npm run typecheck`, `npm run lint`, `npx expo-doctor`.
 
@@ -42,10 +49,10 @@ Path alias: `@/*` → `src/*` (`tsconfig.json`).
 
 | Route | Purpose |
 | --- | --- |
-| `/` (index) | Choose campus zone (chips), type a query or tap a category, optional "use my location" for walking estimates. Renders `ResultCard` list; shows `PROTOTYPE_DISCLOSURE` at top. |
+| `/` (index) | Choose campus zone, type a query or tap a category, and optionally use location for walking estimates. Changing campus refreshes the active category or text search. Renders a compact `ResultCard` list; the home header omits the explanatory prototype panel while API/detail disclosures remain intact. |
 | `/help` | Loads `/api/health-contacts`; pins a "Call 911" emergency card; `contactLink()` parses phone/email/SMS (741741, 988) into `tel:`/`sms:`/`mailto:` URLs. |
 | `/product/[id]` | Product detail via `getProduct()` — definition, typical use, label caution, per-location availability. |
-| `/location/[id]` | Location detail via `getLocation()` — hours per weekday, payment/swipe notes, proposed health section, inventory list. |
+| `/location/[id]` | Location detail via `getLocation()` — hours per weekday, payment/swipe notes, proposed health section, inventory list, and Mapbox walking directions when coordinates and `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN` are configured. |
 | `/reserve/[inventoryId]` | Picks pickup method (`Self pickup`, `Authorized friend pickup`) and payment method (`Proposed retail swipe`, `RU Express`, `Cash or card`), then `createReservation()` and `router.replace` to the reservation screen, passing `pickupCode` in the route params. |
 | `/reservation/[id]` | Countdown to `expiresAt` (1 s interval), one-time pickup code display (passed via params; falls back to `pickupCodeLast4`), cancel action. |
 | `/report/[inventoryId]` | Choose shelf status and verification type; `Authorized student` requires a photo (`expo-image-picker`, stays on device — only the flag is sent); reads GPS (`expo-location`, high accuracy) for the geofence check. |

@@ -21,7 +21,7 @@ The API starts at `http://localhost:5000/api`.
 For a combined local setup, run `./run.sh` from the repository root. It
 creates/reuses `.venv`, installs backend and frontend dependencies, reseeds the
 demo database, starts Flask, waits for `/api`, and launches Expo. It requires
-Python 3.10+, Node.js/npm, and `curl`. Set `EXPO_PUBLIC_API_URL` to the
+Python 3.9+, Node.js/npm, and `curl`. Set `EXPO_PUBLIC_API_URL` to the
 computer's LAN address for a physical Expo Go device.
 
 ## Run the Expo Go frontend

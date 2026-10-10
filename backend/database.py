@@ -3,7 +3,7 @@ from __future__ import annotations
 import sqlite3
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Iterator
+from typing import Iterator, Optional, Union
 
 from flask import current_app, g
 
@@ -13,7 +13,7 @@ DEFAULT_DATABASE = PROJECT_ROOT / "database" / "ru_relief.db"
 SCHEMA_PATH = PROJECT_ROOT / "database" / "schema.sql"
 
 
-def connect(database_path: str | Path = DEFAULT_DATABASE) -> sqlite3.Connection:
+def connect(database_path: Union[str, Path] = DEFAULT_DATABASE) -> sqlite3.Connection:
     path = Path(database_path)
     path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(path, detect_types=sqlite3.PARSE_DECLTYPES)
@@ -30,13 +30,13 @@ def get_db() -> sqlite3.Connection:
     return g.db
 
 
-def close_db(_error: BaseException | None = None) -> None:
+def close_db(_error: Optional[BaseException] = None) -> None:
     database = g.pop("db", None)
     if database is not None:
         database.close()
 
 
-def init_db(connection: sqlite3.Connection | None = None) -> None:
+def init_db(connection: Optional[sqlite3.Connection] = None) -> None:
     owns_connection = connection is None
     database = connection or get_db()
     database.executescript(SCHEMA_PATH.read_text(encoding="utf-8"))
@@ -60,4 +60,3 @@ def immediate_transaction(connection: sqlite3.Connection) -> Iterator[sqlite3.Co
 
 def init_app(app) -> None:
     app.teardown_appcontext(close_db)
-

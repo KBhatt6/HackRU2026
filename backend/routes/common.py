@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from functools import wraps
-from typing import Any
+from typing import Any, Optional
 from zoneinfo import ZoneInfo
 
 from flask import abort, request
@@ -28,7 +28,7 @@ def read_settings() -> dict[str, Any]:
     return settings
 
 
-def request_time(settings: dict[str, Any] | None = None) -> datetime:
+def request_time(settings: Optional[dict[str, Any]] = None) -> datetime:
     requested = request.args.get("at")
     if requested:
         try:
@@ -59,4 +59,3 @@ def require_staff(view):
         return view(*args, **kwargs)
 
     return wrapped
-

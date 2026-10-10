@@ -7,7 +7,7 @@ import re
 import sqlite3
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any, Iterable, Optional, Tuple
 from zoneinfo import ZoneInfo
 
 from openpyxl import load_workbook
@@ -23,7 +23,7 @@ def yes(value: Any) -> int:
     return int(str(value or "").strip().lower().startswith("yes") or str(value or "").strip() == "Prototype")
 
 
-def iso_datetime(value: Any) -> str | None:
+def iso_datetime(value: Any) -> Optional[str]:
     if value in (None, ""):
         return None
     if isinstance(value, datetime):
@@ -68,7 +68,7 @@ def rows_from_sheet(workbook, sheet_name: str, header_row: int = 1) -> list[dict
     return rows
 
 
-def parse_time_minutes(value: Any) -> int | None:
+def parse_time_minutes(value: Any) -> Optional[int]:
     if value in (None, ""):
         return None
     if hasattr(value, "hour") and hasattr(value, "minute"):
@@ -88,7 +88,7 @@ def internal_capacity(status: str, proposed: bool) -> int:
     return 0
 
 
-def hash_pickup_code(code: str | None) -> tuple[str | None, str | None]:
+def hash_pickup_code(code: Optional[str]) -> Tuple[Optional[str], Optional[str]]:
     if not code:
         return None, None
     return hashlib.sha256(code.encode("utf-8")).hexdigest(), code[-4:]

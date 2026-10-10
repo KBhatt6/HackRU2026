@@ -1,12 +1,14 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import * as Location from 'expo-location';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvailabilityBadge, Card, ErrorState, LoadingState, SectionTitle } from '@/components/ui';
 import { Screen } from '@/components/screen';
 import { colors, radius, spacing } from '@/constants/theme';
+import { MAPBOX_ACCESS_TOKEN } from '@/constants/config';
 import { getLocation } from '@/services/api';
-import type { Location } from '@/types/api';
+import type { Location as LocationRecord } from '@/types/api';
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 
@@ -22,8 +24,39 @@ function formatMinute(value: number | null) {
 
 export default function LocationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [location, setLocation] = useState<Location | null>(null);
+  const [location, setLocation] = useState<LocationRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [routeLabel, setRouteLabel] = useState<string | null>(null);
+
+  async function getDirections() {
+    if (!location?.latitude || !location.longitude) {
+      setError('Directions are unavailable because this location has no verified coordinates.');
+      return;
+    }
+    if (!MAPBOX_ACCESS_TOKEN) {
+      setError('Mapbox directions are not configured. Add EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN to frontend/.env.');
+      return;
+    }
+    setError(null);
+    try {
+      const permission = await Location.requestForegroundPermissionsAsync();
+      if (!permission.granted) throw new Error('Location permission is required for walking directions.');
+      const current = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
+      const origin = `${current.coords.longitude},${current.coords.latitude}`;
+      const destination = `${location.longitude},${location.latitude}`;
+      const response = await fetch(
+        `https://api.mapbox.com/directions/v5/mapbox/walking/${origin};${destination}?overview=false&access_token=${MAPBOX_ACCESS_TOKEN}`,
+      );
+      if (!response.ok) throw new Error('Mapbox could not calculate a walking route.');
+      const body = (await response.json()) as { routes?: { duration: number; distance: number }[] };
+      const route = body.routes?.[0];
+      if (!route) throw new Error('No walking route was found.');
+      setRouteLabel(`${Math.max(1, Math.round(route.duration / 60))} min walk · ${(route.distance / 1609.34).toFixed(1)} mi`);
+      await Linking.openURL(`https://www.mapbox.com/directions/?origin=${origin}&destination=${destination}`);
+    } catch (requestError) {
+      setError(requestError instanceof Error ? requestError.message : 'Could not get directions.');
+    }
+  }
 
   async function load() {
     if (!id) return;
@@ -61,6 +94,10 @@ export default function LocationScreen() {
         <Text style={styles.title}>{location.locationName}</Text>
         <Text style={styles.description}>{location.siteDescription}</Text>
         {!location.verified ? <Text style={styles.unverified}>Location details need Rutgers confirmation.</Text> : null}
+        <Pressable style={styles.directionsButton} onPress={() => void getDirections()}>
+          <Text style={styles.directionsText}>Get walking directions</Text>
+        </Pressable>
+        {routeLabel ? <Text style={styles.routeLabel}>{routeLabel}</Text> : null}
       </View>
 
       <Card>
@@ -109,6 +146,9 @@ const styles = StyleSheet.create({
   title: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: '900' },
   description: { color: colors.inkMuted, fontSize: 15, lineHeight: 22 },
   unverified: { color: colors.danger, fontWeight: '800', marginTop: spacing.sm },
+  directionsButton: { alignSelf: 'flex-start', backgroundColor: colors.primary, paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.sm, marginTop: spacing.sm },
+  directionsText: { color: colors.white, fontWeight: '700' },
+  routeLabel: { color: colors.primaryDark, fontWeight: '700' },
   body: { color: colors.ink, fontSize: 15, lineHeight: 22 },
   note: { color: colors.inkMuted, fontSize: 13, lineHeight: 20 },
   proposedBox: { backgroundColor: colors.lowSoft, borderRadius: radius.sm, padding: 12, gap: 3, marginTop: spacing.sm },

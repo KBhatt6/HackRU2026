@@ -1,6 +1,13 @@
+import Constants from 'expo-constants';
+
+const expoHost = Constants.expoConfig?.hostUri?.split(':')[0];
+const defaultApiHost = expoHost || '127.0.0.1';
+
 export const API_BASE_URL = (
-  process.env.EXPO_PUBLIC_API_URL || 'http://127.0.0.1:5000'
+  process.env.EXPO_PUBLIC_API_URL || `http://${defaultApiHost}:5000`
 ).replace(/\/$/, '');
+
+export const MAPBOX_ACCESS_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
 
 export const DEMO_USER_TOKEN = 'expo-demo-student';
 

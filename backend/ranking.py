@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 from math import asin, cos, radians, sin, sqrt
-from typing import Any, Mapping
+from typing import Any, Mapping, Optional, Tuple, Union
 from zoneinfo import ZoneInfo
 
 
@@ -28,7 +28,7 @@ CONFIDENCE_SCORES = {
 }
 
 
-def parse_datetime(value: str | datetime | None) -> datetime | None:
+def parse_datetime(value: Optional[Union[str, datetime]]) -> Optional[datetime]:
     if value is None or value == "":
         return None
     if isinstance(value, datetime):
@@ -40,14 +40,14 @@ def parse_datetime(value: str | datetime | None) -> datetime | None:
     return result.astimezone(EASTERN)
 
 
-def minutes_since(last_verified: str | datetime | None, now: datetime) -> int | None:
+def minutes_since(last_verified: Optional[Union[str, datetime]], now: datetime) -> Optional[int]:
     verified = parse_datetime(last_verified)
     if verified is None:
         return None
     return max(0, int((now.astimezone(EASTERN) - verified).total_seconds() // 60))
 
 
-def confidence_validity_minutes(reported_confidence: str, settings: Mapping[str, Any]) -> int | None:
+def confidence_validity_minutes(reported_confidence: str, settings: Mapping[str, Any]) -> Optional[int]:
     if reported_confidence == "Staff verified":
         return int(settings.get("staff_report_validity_min", 240))
     if reported_confidence in {
@@ -61,10 +61,10 @@ def confidence_validity_minutes(reported_confidence: str, settings: Mapping[str,
 
 def effective_confidence(
     reported_confidence: str,
-    last_verified: str | datetime | None,
+    last_verified: Optional[Union[str, datetime]],
     now: datetime,
     settings: Mapping[str, Any],
-) -> tuple[str, int | None]:
+) -> Tuple[str, Optional[int]]:
     age = minutes_since(last_verified, now)
     validity = confidence_validity_minutes(reported_confidence, settings)
     if age is not None and validity is not None and age > validity:
@@ -72,14 +72,14 @@ def effective_confidence(
     return reported_confidence, age
 
 
-def minute_of_day(time_text: str | None) -> int | None:
+def minute_of_day(time_text: Optional[str]) -> Optional[int]:
     if not time_text:
         return None
     hour, minute = (int(part) for part in time_text.split(":"))
     return hour * 60 + minute
 
 
-def format_minute(minute: int | None) -> str | None:
+def format_minute(minute: Optional[int]) -> Optional[str]:
     if minute is None:
         return None
     if minute == 1440:
@@ -88,11 +88,11 @@ def format_minute(minute: int | None) -> str | None:
 
 
 def open_state(
-    opens_minute: int | None,
-    closes_minute: int | None,
+    opens_minute: Optional[int],
+    closes_minute: Optional[int],
     hours_known: bool,
     now: datetime,
-) -> tuple[bool | None, str | None, bool]:
+) -> Tuple[Optional[bool], Optional[str], bool]:
     if not hours_known or opens_minute is None or closes_minute is None:
         return None, None, False
     current = now.astimezone(EASTERN).hour * 60 + now.astimezone(EASTERN).minute
@@ -111,12 +111,12 @@ def haversine_km(lat1: float, lon1: float, lat2: float, lon2: float) -> float:
 
 
 def route_estimate(
-    user_latitude: float | None,
-    user_longitude: float | None,
-    location_latitude: float | None,
-    location_longitude: float | None,
+    user_latitude: Optional[float],
+    user_longitude: Optional[float],
+    location_latitude: Optional[float],
+    location_longitude: Optional[float],
     settings: Mapping[str, Any],
-) -> tuple[float | None, int | None]:
+) -> Tuple[Optional[float], Optional[int]]:
     if None in (user_latitude, user_longitude, location_latitude, location_longitude):
         return None, None
     straight_line = haversine_km(
@@ -144,8 +144,8 @@ def reservation_state(availability: str, confidence: str, proposed_to_stock: boo
 def calculate_score(
     availability: str,
     confidence: str,
-    is_open: bool | None,
-    travel_minutes: int | None,
+    is_open: Optional[bool],
+    travel_minutes: Optional[int],
     settings: Mapping[str, Any],
 ) -> float:
     availability_score = AVAILABILITY_SCORES.get(availability, 0.0)

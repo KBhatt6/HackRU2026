@@ -70,13 +70,13 @@ export function ResultCard({ result, rank }: { result: SearchResult; rank: numbe
 const styles = StyleSheet.create({
   card: {
     padding: spacing.md,
-    borderRadius: radius.lg,
+    borderRadius: radius.md,
     backgroundColor: colors.surface,
     borderWidth: 1,
     borderColor: colors.border,
     gap: spacing.sm,
   },
-  bestCard: { borderColor: colors.primary, borderWidth: 2 },
+  bestCard: { borderColor: colors.accent, borderWidth: 1 },
   topRow: { flexDirection: 'row', gap: spacing.md },
   flex: { flex: 1 },
   recommended: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1, marginBottom: 3 },

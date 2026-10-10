@@ -15,7 +15,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ResultCard } from '@/components/result-card';
 import { ErrorState } from '@/components/ui';
-import { CAMPUS_ZONES, CATEGORIES, PROTOTYPE_DISCLOSURE } from '@/constants/config';
+import { CAMPUS_ZONES, CATEGORIES } from '@/constants/config';
 import { colors, radius, spacing } from '@/constants/theme';
 import { searchInventory } from '@/services/api';
 import type { SearchResult } from '@/types/api';
@@ -41,7 +41,7 @@ export default function HomeScreen() {
     setCoordinates({ latitude: position.coords.latitude, longitude: position.coords.longitude });
   }
 
-  async function performSearch(category = activeCategory) {
+  async function performSearch(category = activeCategory, zone = campusZone) {
     if (!query.trim() && !category) {
       setError('Enter a product or choose a category.');
       return;
@@ -54,7 +54,7 @@ export default function HomeScreen() {
       const response = await searchInventory({
         query: query.trim() || undefined,
         category: query.trim() ? undefined : category || undefined,
-        campusZone,
+        campusZone: zone,
         latitude: coordinates?.latitude,
         longitude: coordinates?.longitude,
       });
@@ -73,23 +73,23 @@ export default function HomeScreen() {
     void performSearch(category);
   }
 
+  function chooseCampusZone(zone: (typeof CAMPUS_ZONES)[number]) {
+    setCampusZone(zone);
+    if (query.trim() || activeCategory) {
+      void performSearch(activeCategory, zone);
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View style={styles.headerCopy}>
-            <Text style={styles.eyebrow}>RUTGERS–NEW BRUNSWICK</Text>
-            <Text style={styles.title}>RU Relief</Text>
-            <Text style={styles.subtitle}>Find campus health supplies before making the trip.</Text>
+            <Text style={styles.title}>Find supplies</Text>
           </View>
           <Pressable style={styles.helpButton} onPress={() => router.push('/help')}>
             <Text style={styles.helpButtonText}>Get help</Text>
           </Pressable>
-        </View>
-
-        <View style={styles.disclosure}>
-          <Text style={styles.disclosureTitle}>HackRU prototype</Text>
-          <Text style={styles.disclosureText}>{PROTOTYPE_DISCLOSURE}</Text>
         </View>
 
         <View style={styles.searchPanel}>
@@ -98,7 +98,7 @@ export default function HomeScreen() {
             {CAMPUS_ZONES.map((zone) => (
               <Pressable
                 key={zone}
-                onPress={() => setCampusZone(zone)}
+                onPress={() => chooseCampusZone(zone)}
                 style={[styles.chip, campusZone === zone && styles.chipActive]}
               >
                 <Text style={[styles.chipText, campusZone === zone && styles.chipTextActive]}>{zone}</Text>
@@ -186,15 +186,10 @@ const styles = StyleSheet.create({
   content: { padding: spacing.md, paddingBottom: 64, gap: spacing.lg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing.md },
   headerCopy: { flex: 1 },
-  eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 },
-  title: { color: colors.ink, fontSize: 38, lineHeight: 43, fontWeight: '900', letterSpacing: -1.2 },
-  subtitle: { color: colors.inkMuted, fontSize: 15, lineHeight: 21, maxWidth: 260 },
-  helpButton: { backgroundColor: colors.accentSoft, paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.pill },
-  helpButtonText: { color: colors.danger, fontWeight: '900' },
-  disclosure: { backgroundColor: colors.primarySoft, borderRadius: radius.md, padding: spacing.md, gap: 3 },
-  disclosureTitle: { color: colors.primaryDark, fontSize: 13, fontWeight: '900' },
-  disclosureText: { color: colors.primaryDark, fontSize: 12, lineHeight: 18 },
-  searchPanel: { backgroundColor: colors.surface, borderRadius: radius.lg, padding: spacing.md, gap: spacing.sm, borderWidth: 1, borderColor: colors.border },
+  title: { color: colors.ink, fontSize: 34, lineHeight: 40, fontWeight: '800', letterSpacing: -0.8 },
+  helpButton: { backgroundColor: colors.accentSoft, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.sm },
+  helpButtonText: { color: colors.danger, fontWeight: '700' },
+  searchPanel: { backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm, borderWidth: 1, borderColor: colors.border },
   label: { color: colors.ink, fontSize: 14, fontWeight: '800', marginTop: 3 },
   chipRow: { gap: spacing.sm, paddingVertical: 2 },
   chip: { borderColor: colors.border, borderWidth: 1, paddingHorizontal: 13, paddingVertical: 9, borderRadius: radius.pill },
@@ -202,15 +197,15 @@ const styles = StyleSheet.create({
   chipText: { color: colors.inkMuted, fontSize: 13, fontWeight: '700' },
   chipTextActive: { color: colors.white },
   searchRow: { flexDirection: 'row', gap: spacing.sm },
-  input: { flex: 1, minHeight: 50, paddingHorizontal: 14, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.background, fontSize: 15 },
-  searchButton: { minHeight: 50, justifyContent: 'center', paddingHorizontal: 16, borderRadius: radius.md, backgroundColor: colors.primary },
-  searchButtonText: { color: colors.white, fontWeight: '900' },
+  input: { flex: 1, minHeight: 46, paddingHorizontal: 14, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.background, fontSize: 15 },
+  searchButton: { minHeight: 46, justifyContent: 'center', paddingHorizontal: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
+  searchButtonText: { color: colors.white, fontWeight: '700' },
   locationButton: { alignSelf: 'flex-start', paddingVertical: 8 },
   locationButtonText: { color: colors.primary, fontWeight: '800', fontSize: 13 },
   section: { gap: spacing.md },
   sectionTitle: { color: colors.ink, fontSize: 21, fontWeight: '900' },
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  category: { width: '48%', flexGrow: 1, minHeight: 54, justifyContent: 'center', padding: 12, borderRadius: radius.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  category: { width: '48%', flexGrow: 1, minHeight: 54, justifyContent: 'center', padding: 12, borderRadius: radius.sm, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   categoryActive: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   categoryText: { color: colors.ink, fontSize: 13, fontWeight: '700' },
   categoryTextActive: { color: colors.primaryDark },

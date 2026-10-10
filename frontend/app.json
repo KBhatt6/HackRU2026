@@ -1,12 +1,12 @@
 {
   "expo": {
-    "name": "RU Relief",
+    "name": "Relief",
     "slug": "ru-relief",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
     "scheme": "rurelief",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "ios": {
       "icon": "./assets/expo.icon"
     },

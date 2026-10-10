@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from typing import Optional
 from pathlib import Path
 
 from flask import Flask, jsonify
@@ -16,7 +17,7 @@ from .routes.reservations import reservations_bp
 from .routes.search import search_bp
 
 
-def create_app(test_config: dict | None = None) -> Flask:
+def create_app(test_config: Optional[dict] = None) -> Flask:
     app = Flask(__name__)
     app.config.from_mapping(
         DATABASE=os.environ.get("RU_RELIEF_DATABASE", str(DEFAULT_DATABASE)),
@@ -78,4 +79,3 @@ app = create_app()
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
-

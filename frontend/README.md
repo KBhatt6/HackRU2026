@@ -10,7 +10,7 @@ Copy `.env.example` to `.env` and replace the value with the computer's local-ne
 EXPO_PUBLIC_API_URL=http://192.168.1.42:5000
 ```
 
-Do not use `localhost` or `127.0.0.1` on a physical phone. The phone interprets those addresses as the phone itself. Keep the phone and development computer on the same network.
+Do not use `localhost` or `127.0.0.1` on a physical phone. The phone interprets those addresses as the phone itself. Keep the phone and development computer on the same network. If `EXPO_PUBLIC_API_URL` is omitted, the app uses Expo's Metro host with port 5000 automatically; if that cannot reach the backend, set the computer's LAN IP explicitly as shown above.
 
 ## Start everything
 

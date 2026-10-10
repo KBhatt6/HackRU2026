@@ -10,10 +10,18 @@ type SearchInput = {
 };
 
 async function apiRequest<T>(path: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${API_BASE_URL}${path}`, {
-    ...options,
-    headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${API_BASE_URL}${path}`, {
+      ...options,
+      headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
+    });
+  } catch {
+    throw new Error(
+      `Could not connect to the RU Relief API at ${API_BASE_URL}. ` +
+        'Make sure the backend is running and your phone is on the same Wi-Fi network.',
+    );
+  }
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {
     throw new Error(body.message || `Request failed with status ${response.status}`);

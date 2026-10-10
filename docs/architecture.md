@@ -6,8 +6,8 @@ RU Relief is a two-tier prototype:
 
 Local development can use `./run.sh`, which prepares the Python virtual
 environment, installs dependencies, reseeds SQLite, waits for Flask readiness,
-and starts Expo. `BACKEND_PORT` can override the default port 5000, and the
-backend uses Python 3.10+ syntax.
+and starts Expo. `BACKEND_PORT` can override the default port 5000. The backend
+supports Python 3.9+.
 
 ```
 ┌─────────────────────────────┐        HTTPS/JSON        ┌──────────────────────────────┐

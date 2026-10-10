@@ -58,7 +58,7 @@ There is no frontend unit-test runner in the project; screens are validated by
 ## Manual smoke test
 
 The combined local setup is `./run.sh`; it reseeds the demo database and
-launches both services. It requires Python 3.10+, Node.js/npm, and `curl`.
+launches both services. It requires Python 3.9+, Node.js/npm, and `curl`.
 
 1. `python -m backend.seed && python run.py`
 2. `curl "http://localhost:5000/api/search?query=Advil&campus_zone=Livingston&at=2026-10-13T16:00:00-04:00"`

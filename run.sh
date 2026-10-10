@@ -5,12 +5,12 @@ set -Eeuo pipefail
 ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
 VENV_DIR="${ROOT_DIR}/.venv"
 PYTHON_BIN="${PYTHON_BIN:-python3}"
-BACKEND_PORT="${BACKEND_PORT:-5000}"
-EXPO_API_URL="${EXPO_PUBLIC_API_URL:-http://127.0.0.1:${BACKEND_PORT}}"
+BACKEND_PORT="${BACKEND_PORT:-6000}"
+EXPO_API_URL="${EXPO_PUBLIC_API_URL:-}"
 
 command -v "${PYTHON_BIN}" >/dev/null 2>&1 || { echo "error: ${PYTHON_BIN} was not found" >&2; exit 1; }
-"${PYTHON_BIN}" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 10) else 1)' || {
-  echo "error: RU Relief requires Python 3.10 or newer (found $(${PYTHON_BIN} --version 2>&1))" >&2
+"${PYTHON_BIN}" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 9) else 1)' || {
+  echo "error: RU Relief requires Python 3.9 or newer (found $(${PYTHON_BIN} --version 2>&1))" >&2
   echo "       Set PYTHON_BIN to a compatible interpreter and rerun." >&2
   exit 1
 }
@@ -39,17 +39,28 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 echo "Starting backend at http://127.0.0.1:${BACKEND_PORT}/api"
-(
-  cd "${ROOT_DIR}"
-  RU_RELIEF_DATABASE="${ROOT_DIR}/database/ru_relief.db" BACKEND_PORT="${BACKEND_PORT}" "${VENV_PYTHON}" run.py
-) &
-BACKEND_PID=$!
+if curl --silent --fail "http://127.0.0.1:${BACKEND_PORT}/api" >/dev/null 2>&1; then
+  echo "Reusing the already-running backend on port ${BACKEND_PORT}"
+else
+  if command -v lsof >/dev/null 2>&1 && lsof -nP -iTCP:"${BACKEND_PORT}" -sTCP:LISTEN >/dev/null 2>&1; then
+    echo "error: port ${BACKEND_PORT} is occupied, but it is not serving RU Relief" >&2
+    echo "       Stop the process shown by: lsof -nP -iTCP:${BACKEND_PORT} -sTCP:LISTEN" >&2
+    exit 1
+  fi
+  (
+    cd "${ROOT_DIR}"
+    RU_RELIEF_DATABASE="${ROOT_DIR}/database/ru_relief.db" BACKEND_PORT="${BACKEND_PORT}" "${VENV_PYTHON}" run.py
+  ) &
+  BACKEND_PID=$!
+fi
 
-for _ in {1..30}; do
-  curl --silent --fail "http://127.0.0.1:${BACKEND_PORT}/api" >/dev/null 2>&1 && break
-  kill -0 "${BACKEND_PID}" 2>/dev/null || { wait "${BACKEND_PID}"; exit 1; }
-  sleep 1
-done
+if [[ -n "${BACKEND_PID:-}" ]]; then
+  for _ in {1..30}; do
+    curl --silent --fail "http://127.0.0.1:${BACKEND_PORT}/api" >/dev/null 2>&1 && break
+    kill -0 "${BACKEND_PID}" 2>/dev/null || { wait "${BACKEND_PID}"; exit 1; }
+    sleep 1
+  done
+fi
 curl --silent --fail "http://127.0.0.1:${BACKEND_PORT}/api" >/dev/null 2>&1 || {
   echo "error: backend did not become ready within 30 seconds" >&2
   exit 1

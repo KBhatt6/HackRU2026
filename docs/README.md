@@ -25,7 +25,7 @@ working on this repository in the future.
 
 The combined local workflow is `./run.sh`. It creates/reuses `.venv`, installs
 dependencies, reseeds the demo SQLite database, starts Flask, waits for the API
-health endpoint, and launches Expo. It requires Python 3.10+, Node.js/npm, and
+health endpoint, and launches Expo. It requires Python 3.9+, Node.js/npm, and
 `curl`. Set `EXPO_PUBLIC_API_URL` to the computer's LAN address for a physical
 Expo Go device.
 
