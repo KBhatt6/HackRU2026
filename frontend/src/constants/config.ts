@@ -9,6 +9,11 @@ export const API_BASE_URL = (
 
 export const MAPBOX_ACCESS_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN || '';
 
+export function directionsAddress(locationName: string, siteDescription?: string | null) {
+  if (locationName.toLowerCase() === 'harvest juice bar') return 'Busch Student Center, 604 Bartholomew Rd';
+  return siteDescription || 'Rutgers University-New Brunswick, New Jersey';
+}
+
 export const DEMO_USER_TOKEN = 'expo-demo-student';
 
 export const CAMPUS_ZONES = [

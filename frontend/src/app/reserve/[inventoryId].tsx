@@ -99,9 +99,9 @@ export default function ReserveScreen() {
 
 const styles = StyleSheet.create({
   hero: { paddingVertical: spacing.md, gap: spacing.xs },
-  eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  title: { color: colors.ink, fontSize: 30, lineHeight: 36, fontWeight: '900' },
-  subtitle: { color: colors.inkMuted, fontSize: 16 },
+  eyebrow: { color: '#FF7A8E', fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
+  title: { color: colors.white, fontSize: 30, lineHeight: 36, fontWeight: '900' },
+  subtitle: { color: '#D7D2CD', fontSize: 16 },
   options: { gap: spacing.sm },
   option: { color: colors.ink, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 14, fontWeight: '700', overflow: 'hidden' },
   optionActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft, color: colors.primaryDark },
@@ -109,5 +109,5 @@ const styles = StyleSheet.create({
   summaryCard: { backgroundColor: colors.surfaceMuted },
   summaryTitle: { color: colors.ink, fontWeight: '900' },
   summaryText: { color: colors.inkMuted, lineHeight: 21 },
-  error: { color: colors.danger, fontWeight: '700', lineHeight: 20 },
+  error: { color: '#FF7A8E', fontWeight: '700', lineHeight: 20 },
 });

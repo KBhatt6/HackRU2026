@@ -1,12 +1,11 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import * as Location from 'expo-location';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvailabilityBadge, Card, ErrorState, LoadingState, SectionTitle } from '@/components/ui';
 import { Screen } from '@/components/screen';
 import { colors, radius, spacing } from '@/constants/theme';
-import { MAPBOX_ACCESS_TOKEN } from '@/constants/config';
+import { directionsAddress } from '@/constants/config';
 import { getLocation } from '@/services/api';
 import type { Location as LocationRecord } from '@/types/api';
 
@@ -26,35 +25,14 @@ export default function LocationScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const [location, setLocation] = useState<LocationRecord | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [routeLabel, setRouteLabel] = useState<string | null>(null);
-
   async function getDirections() {
-    if (!location?.latitude || !location.longitude) {
-      setError('Directions are unavailable because this location has no verified coordinates.');
+    if (!location) {
+      setError('This location is not available for directions.');
       return;
     }
-    if (!MAPBOX_ACCESS_TOKEN) {
-      setError('Mapbox directions are not configured. Add EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN to frontend/.env.');
-      return;
-    }
-    setError(null);
-    try {
-      const permission = await Location.requestForegroundPermissionsAsync();
-      if (!permission.granted) throw new Error('Location permission is required for walking directions.');
-      const current = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-      const origin = `${current.coords.longitude},${current.coords.latitude}`;
-      const destination = `${location.longitude},${location.latitude}`;
-      const response = await fetch(
-        `https://api.mapbox.com/directions/v5/mapbox/walking/${origin};${destination}?overview=false&access_token=${MAPBOX_ACCESS_TOKEN}`,
-      );
-      if (!response.ok) throw new Error('Mapbox could not calculate a walking route.');
-      const body = (await response.json()) as { routes?: { duration: number; distance: number }[] };
-      const route = body.routes?.[0];
-      if (!route) throw new Error('No walking route was found.');
-      setRouteLabel(`${Math.max(1, Math.round(route.duration / 60))} min walk · ${(route.distance / 1609.34).toFixed(1)} mi`);
-    } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : 'Could not get directions.');
-    }
+    const destination = directionsAddress(location.locationName, location.siteDescription);
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(destination)}`;
+    await Linking.openURL(googleMapsUrl);
   }
 
   async function load() {
@@ -94,9 +72,8 @@ export default function LocationScreen() {
         <Text style={styles.description}>{location.siteDescription}</Text>
         {!location.verified ? <Text style={styles.unverified}>Location details need Rutgers confirmation.</Text> : null}
         <Pressable style={styles.directionsButton} onPress={() => void getDirections()}>
-          <Text style={styles.directionsText}>{routeLabel ? 'Refresh directions' : 'Get walking directions'}</Text>
+          <Text style={styles.directionsText}>Directions</Text>
         </Pressable>
-        {routeLabel ? <Text style={styles.routeLabel}>{routeLabel}</Text> : null}
       </View>
 
       <Card>
@@ -125,7 +102,7 @@ export default function LocationScreen() {
         <Text style={styles.note}>{location.hoursBasis}</Text>
       </Card>
 
-      <SectionTitle>Proposed health inventory</SectionTitle>
+      <Text style={styles.sectionHeading}>Proposed health inventory</Text>
       {location.inventory?.map((item) => (
         <View key={item.inventoryId} style={styles.inventoryRow}>
           <View style={styles.inventoryCopy}>
@@ -141,10 +118,11 @@ export default function LocationScreen() {
 
 const styles = StyleSheet.create({
   hero: { paddingVertical: spacing.md, gap: spacing.xs },
-  zone: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  title: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: '900' },
-  description: { color: colors.inkMuted, fontSize: 15, lineHeight: 22 },
+  zone: { color: '#FF7A8E', fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
+  title: { color: colors.white, fontSize: 32, lineHeight: 38, fontWeight: '900' },
+  description: { color: '#D7D2CD', fontSize: 15, lineHeight: 22 },
   unverified: { color: colors.danger, fontWeight: '800', marginTop: spacing.sm },
+  sectionHeading: { color: colors.white, fontSize: 20, lineHeight: 26, fontWeight: '800' },
   directionsButton: { alignSelf: 'flex-start', backgroundColor: colors.primary, paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.sm, marginTop: spacing.sm },
   directionsText: { color: colors.white, fontWeight: '700' },
   routeLabel: { color: colors.primaryDark, fontWeight: '700' },

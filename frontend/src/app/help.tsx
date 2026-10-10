@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Linking, StyleSheet, Text, View } from 'react-native';
 
-import { Card, ErrorState, LoadingState, PrimaryButton, SectionTitle } from '@/components/ui';
+import { Card, ErrorState, LoadingState, PrimaryButton } from '@/components/ui';
 import { Screen } from '@/components/screen';
 import { colors, spacing } from '@/constants/theme';
 import { getHealthContacts } from '@/services/api';
@@ -58,10 +58,10 @@ export default function HelpScreen() {
         <PrimaryButton label="Call 911" destructive onPress={() => void Linking.openURL('tel:911')} />
       </Card>
 
-      <SectionTitle>Rutgers emergency contacts</SectionTitle>
+      <Text style={styles.pageHeading}>Rutgers emergency contacts</Text>
       {emergencies.map((contact) => <ContactCard key={contact.contactId} contact={contact} />)}
 
-      <SectionTitle>Health and support</SectionTitle>
+      <Text style={styles.pageHeading}>Health and support</Text>
       {otherContacts.map((contact) => <ContactCard key={contact.contactId} contact={contact} />)}
     </Screen>
   );
@@ -86,6 +86,7 @@ function ContactCard({ contact }: { contact: HealthContact }) {
 }
 
 const styles = StyleSheet.create({
+  pageHeading: { color: colors.white, fontSize: 20, lineHeight: 26, fontWeight: '800' },
   emergencyCard: { backgroundColor: colors.dangerSoft, borderColor: '#F4BCC7' },
   emergencyLabel: { color: colors.danger, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
   emergencyTitle: { color: colors.danger, fontSize: 28, fontWeight: '900' },

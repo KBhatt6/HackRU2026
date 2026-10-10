@@ -17,11 +17,13 @@ export function PrimaryButton({
   onPress,
   disabled,
   destructive,
+  compact,
 }: {
   label: string;
   onPress: () => void;
   disabled?: boolean;
   destructive?: boolean;
+  compact?: boolean;
 }) {
   return (
     <Pressable
@@ -30,12 +32,13 @@ export function PrimaryButton({
       onPress={onPress}
       style={({ pressed }) => [
         styles.primaryButton,
+        compact && styles.compactButton,
         destructive && styles.destructiveButton,
         disabled && styles.disabledButton,
         pressed && !disabled && styles.pressed,
       ]}
     >
-      <Text style={styles.primaryButtonText}>{label}</Text>
+      <Text numberOfLines={1} style={styles.primaryButtonText}>{label}</Text>
     </Pressable>
   );
 }
@@ -114,6 +117,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
   },
+  compactButton: { minHeight: 44, paddingHorizontal: 10 },
   destructiveButton: { backgroundColor: colors.danger },
   disabledButton: { opacity: 0.42 },
   pressed: { opacity: 0.75 },
@@ -132,6 +136,6 @@ const styles = StyleSheet.create({
   muted: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 14, lineHeight: 21 },
   errorCard: { backgroundColor: colors.dangerSoft, borderColor: '#F4BCC7' },
   errorTitle: { color: colors.danger, fontFamily: fonts.body, fontWeight: '800', fontSize: 16 },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 0, borderWidth: 1, borderColor: colors.border },
+  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 0, borderWidth: 1, borderColor: '#000000' },
   badgeText: { fontFamily: fonts.body, fontSize: 12, lineHeight: 16, fontWeight: '800' },
 });
