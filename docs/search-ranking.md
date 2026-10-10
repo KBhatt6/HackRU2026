@@ -95,8 +95,9 @@ Results are sorted by the tuple, descending:
 3. `score`
 
 So an open, in-stock, lower-scoring row outranks a closed high-scoring one.
-`frontend/src/components/result-card.tsx` highlights index 0 as `BEST MATCH`
-and displays `Math.round(score * 100)`.
+`frontend/src/components/result-card.tsx` labels index 0 with a "Best match"
+group header. The numeric `score` is not shown in the UI; it only drives
+ordering.
 
 ## Changing the algorithm
 

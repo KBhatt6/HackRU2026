@@ -83,7 +83,7 @@ ru-relief-complete/
    and a 0–1 score.
 4. Results are sorted by (open now, in stock, score) and returned with a
    `prototypeDisclosure` string.
-5. The home screen renders `ResultCard`s; index 0 gets the "BEST MATCH" style.
+5. The home screen renders `ResultCard`s; index 0 gets a "Best match" group header.
 
 ### Reservation (write path)
 
