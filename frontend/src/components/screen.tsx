@@ -33,6 +33,6 @@ export function Screen({ children, scroll = true, contentContainerStyle, ...prop
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.md, paddingBottom: 48, gap: spacing.md },
+  content: { paddingHorizontal: spacing.md, paddingTop: spacing.md, paddingBottom: 48, gap: spacing.lg },
   staticContent: { flex: 1, padding: spacing.md },
 });

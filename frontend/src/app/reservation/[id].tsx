@@ -2,7 +2,7 @@ import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
-import { Card, ErrorState, LoadingState, PrimaryButton, SecondaryButton, SectionTitle } from '@/components/ui';
+import { ErrorState, Footnote, Group, LoadingState, Row } from '@/components/ui';
 import { Screen } from '@/components/screen';
 import { DEMO_USER_TOKEN } from '@/constants/config';
 import { colors, spacing } from '@/constants/theme';
@@ -63,47 +63,45 @@ export default function ReservationScreen() {
   return (
     <Screen>
       <View style={styles.hero}>
-        <Text style={styles.status}>{active ? 'HOLD ACTIVE' : reservation.status.toUpperCase()}</Text>
-        <Text style={styles.timer}>{active ? timer : '00:00'}</Text>
-        <Text style={styles.timerLabel}>remaining</Text>
+        <Text style={[styles.timer, !active && styles.timerInactive]}>{active ? timer : '00:00'}</Text>
+        <Text style={styles.timerLabel}>{active ? 'Hold active · time remaining' : reservation.status}</Text>
       </View>
 
-      <Card>
-        <SectionTitle>{reservation.productName || 'Reserved item'}</SectionTitle>
-        <Text style={styles.location}>{reservation.locationName}</Text>
-        <Text style={styles.detail}>Pickup: {reservation.pickupMethod}</Text>
-        <Text style={styles.detail}>Payment: {reservation.paymentMethod}</Text>
-      </Card>
+      <Group header="Item">
+        <Row title={reservation.productName || 'Reserved item'} subtitle={reservation.locationName} />
+        {reservation.pickupMethod ? <Row title="Pickup" value={reservation.pickupMethod} /> : null}
+        {reservation.paymentMethod ? <Row title="Payment" value={reservation.paymentMethod} /> : null}
+      </Group>
 
       {pickupCode ? (
-        <Card style={styles.codeCard}>
-          <Text style={styles.codeLabel}>ONE-TIME PICKUP CODE</Text>
-          <Text selectable style={styles.code}>{pickupCode}</Text>
-          <Text style={styles.codeHelp}>Show this code to the staff member. It is only displayed in full on this device.</Text>
-        </Card>
+        <Group
+          header="One-time pickup code"
+          footer="Show this code to the staff member. It is only displayed in full on this device."
+        >
+          <View style={styles.codeRow}>
+            <Text selectable style={styles.code}>{pickupCode}</Text>
+          </View>
+        </Group>
       ) : (
-        <Card>
-          <Text style={styles.detail}>Pickup code ending in {reservation.pickupCodeLast4 || '—'}</Text>
-        </Card>
+        <Group header="Pickup code">
+          <Row title="Ending in" value={reservation.pickupCodeLast4 || '—'} />
+        </Group>
       )}
 
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      {active ? <PrimaryButton destructive label="Cancel reservation" onPress={() => void cancel()} /> : null}
-      <SecondaryButton label="Back to search" onPress={() => router.replace('/')} />
+      {error ? <Footnote tone="danger">{error}</Footnote> : null}
+      <Group>
+        {active ? <Row title="Cancel reservation" tone="danger" onPress={() => void cancel()} /> : null}
+        <Row title="Back to search" tone="tint" onPress={() => router.replace('/')} />
+      </Group>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { alignItems: 'center', paddingVertical: spacing.lg },
-  status: { color: colors.primary, fontSize: 12, fontWeight: '900', letterSpacing: 1.3 },
-  timer: { color: colors.ink, fontSize: 64, lineHeight: 72, fontWeight: '900', fontVariant: ['tabular-nums'] },
-  timerLabel: { color: colors.inkMuted, fontWeight: '700' },
-  location: { color: colors.primary, fontWeight: '800', fontSize: 16 },
-  detail: { color: colors.inkMuted, fontSize: 14, lineHeight: 21 },
-  codeCard: { alignItems: 'center', backgroundColor: colors.primarySoft },
-  codeLabel: { color: colors.primaryDark, fontWeight: '900', fontSize: 11, letterSpacing: 1 },
-  code: { color: colors.primaryDark, fontSize: 32, fontWeight: '900', letterSpacing: 2 },
-  codeHelp: { color: colors.primaryDark, textAlign: 'center', fontSize: 12, lineHeight: 18 },
-  error: { color: colors.danger, fontWeight: '700' },
+  hero: { alignItems: 'center', paddingVertical: spacing.md },
+  timer: { color: colors.ink, fontSize: 64, lineHeight: 72, fontWeight: '300', fontVariant: ['tabular-nums'] },
+  timerInactive: { color: colors.inkFaint },
+  timerLabel: { color: colors.inkMuted, fontSize: 15 },
+  codeRow: { paddingVertical: spacing.md, alignItems: 'center' },
+  code: { color: colors.ink, fontSize: 32, fontWeight: '600', letterSpacing: 4, fontVariant: ['tabular-nums'] },
 });

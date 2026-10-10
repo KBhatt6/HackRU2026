@@ -4,10 +4,10 @@ import { useLocalSearchParams } from 'expo-router';
 import { useState } from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 
-import { Card, PrimaryButton, SectionTitle } from '@/components/ui';
+import { Footnote, Group, PrimaryButton, Row, StatusText } from '@/components/ui';
 import { Screen } from '@/components/screen';
 import { DEMO_USER_TOKEN } from '@/constants/config';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, spacing } from '@/constants/theme';
 import { submitReport } from '@/services/api';
 
 const STATUSES = ['Available', 'Low stock', 'Out of stock', 'Temporarily unavailable'];
@@ -67,68 +67,70 @@ export default function ReportScreen() {
 
   return (
     <Screen>
-      <View style={styles.hero}>
-        <Text style={styles.eyebrow}>ANONYMOUS STOCK CHECK</Text>
+      <View style={styles.heading}>
         <Text style={styles.title}>{name || 'Health item'}</Text>
-        <Text style={styles.subtitle}>Report only what you can see at the retail location.</Text>
+        <Text style={styles.subtitle}>Anonymous stock check. Report only what you can see at the retail location.</Text>
       </View>
 
-      <Card>
-        <SectionTitle>What is on the shelf?</SectionTitle>
-        <View style={styles.options}>
-          {STATUSES.map((option) => (
-            <Text key={option} onPress={() => setStatus(option)} style={[styles.option, status === option && styles.optionActive]}>
-              {option}
-            </Text>
-          ))}
-        </View>
-      </Card>
+      <Group header="On the shelf">
+        {STATUSES.map((option) => (
+          <Row
+            key={option}
+            title={<StatusText status={option} />}
+            checked={status === option}
+            onPress={() => setStatus(option)}
+          />
+        ))}
+      </Group>
 
-      <Card>
-        <SectionTitle>Verification type</SectionTitle>
-        <Text onPress={() => setRole('Student (basic)')} style={[styles.option, role === 'Student (basic)' && styles.optionActive]}>
-          Basic student report
-        </Text>
-        <Text onPress={() => setRole('Authorized student')} style={[styles.option, role === 'Authorized student' && styles.optionActive]}>
-          Authorized student: photo + location
-        </Text>
-        <Text style={styles.note}>Authorization is simulated in the hackathon build. A real version would require Rutgers SSO and role approval.</Text>
-      </Card>
+      <Group
+        header="Verification"
+        footer="Authorization is simulated in the hackathon build. A real version would require Rutgers SSO and role approval."
+      >
+        <Row title="Basic student report" checked={role === 'Student (basic)'} onPress={() => setRole('Student (basic)')} />
+        <Row
+          title="Authorized student"
+          subtitle="Photo + location"
+          checked={role === 'Authorized student'}
+          onPress={() => setRole('Authorized student')}
+        />
+      </Group>
 
       {role === 'Authorized student' ? (
-        <Card>
-          <SectionTitle>Shelf photo</SectionTitle>
+        <Group
+          header="Shelf photo"
+          footer="For this privacy-safe demo, the image remains on the phone; only the attached/not-attached flag reaches the backend."
+        >
           {photoUri ? <Image source={{ uri: photoUri }} style={styles.preview} /> : null}
-          <PrimaryButton label={photoUri ? 'Choose a different photo' : 'Choose photo'} onPress={() => void choosePhoto()} />
-          <Text style={styles.note}>For this privacy-safe demo, the image remains on the phone; only the attached/not-attached flag reaches the backend.</Text>
-        </Card>
+          <Row
+            title={photoUri ? 'Choose a different photo' : 'Choose photo'}
+            tone="tint"
+            onPress={() => void choosePhoto()}
+          />
+        </Group>
       ) : null}
 
-      <Card style={styles.privacyCard}>
-        <Text style={styles.privacyTitle}>Privacy</Text>
-        <Text style={styles.privacyText}>The backend keeps the geofence distance and result, not your raw GPS coordinates, name, dorm, symptoms, or diagnosis.</Text>
-      </Card>
-
-      {error ? <Text style={styles.error}>{error}</Text> : null}
-      {success ? <Text style={styles.success}>{success}</Text> : null}
-      <PrimaryButton label={loading ? 'Submitting…' : 'Submit stock report'} disabled={loading || Boolean(success)} onPress={() => void sendReport()} />
+      <View style={styles.actions}>
+        {error ? <Footnote tone="danger">{error}</Footnote> : null}
+        {success ? <Footnote tone="success">{success}</Footnote> : null}
+        <PrimaryButton
+          label={loading ? 'Submitting…' : 'Submit stock report'}
+          disabled={loading || Boolean(success)}
+          onPress={() => void sendReport()}
+        />
+        <Footnote>
+          The backend keeps the geofence distance and result, not your raw GPS coordinates, name, dorm, symptoms, or
+          diagnosis.
+        </Footnote>
+      </View>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { paddingVertical: spacing.md, gap: spacing.xs },
-  eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  title: { color: colors.ink, fontSize: 30, lineHeight: 36, fontWeight: '900' },
-  subtitle: { color: colors.inkMuted, fontSize: 15, lineHeight: 22 },
-  options: { gap: spacing.sm },
-  option: { color: colors.ink, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 14, fontWeight: '700', overflow: 'hidden' },
-  optionActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft, color: colors.primaryDark },
-  note: { color: colors.inkMuted, fontSize: 12, lineHeight: 18 },
-  preview: { width: '100%', height: 180, borderRadius: radius.md, backgroundColor: colors.surfaceMuted },
-  privacyCard: { backgroundColor: colors.surfaceMuted },
-  privacyTitle: { color: colors.ink, fontWeight: '900' },
-  privacyText: { color: colors.inkMuted, lineHeight: 21 },
-  error: { color: colors.danger, fontWeight: '700', lineHeight: 20 },
-  success: { color: colors.available, backgroundColor: colors.availableSoft, padding: 14, borderRadius: radius.md, fontWeight: '800', lineHeight: 20 },
+  heading: { gap: 2, paddingHorizontal: spacing.xs },
+  title: { color: colors.ink, fontSize: 28, lineHeight: 34, fontWeight: '700' },
+  subtitle: { color: colors.inkMuted, fontSize: 15, lineHeight: 20 },
+  preview: { width: '100%', height: 180, backgroundColor: colors.surfaceMuted },
+  actions: { gap: spacing.sm },
 });

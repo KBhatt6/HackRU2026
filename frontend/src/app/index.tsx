@@ -2,7 +2,6 @@ import * as Location from 'expo-location';
 import { router } from 'expo-router';
 import { useState } from 'react';
 import {
-  ActivityIndicator,
   Keyboard,
   Pressable,
   ScrollView,
@@ -14,8 +13,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ResultCard } from '@/components/result-card';
-import { ErrorState } from '@/components/ui';
-import { CAMPUS_ZONES, CATEGORIES } from '@/constants/config';
+import { ErrorState, Footnote, Group, LoadingState, Row } from '@/components/ui';
+import { CAMPUS_ZONES, CATEGORIES, PROTOTYPE_DISCLOSURE } from '@/constants/config';
 import { colors, radius, spacing } from '@/constants/theme';
 import { searchInventory } from '@/services/api';
 import type { SearchResult } from '@/types/api';
@@ -81,101 +80,92 @@ export default function HomeScreen() {
   }
 
   return (
-    <SafeAreaView style={styles.safe}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         <View style={styles.header}>
-          <View style={styles.headerCopy}>
-            <Text style={styles.title}>Find supplies</Text>
-          </View>
-          <Pressable style={styles.helpButton} onPress={() => router.push('/help')}>
-            <Text style={styles.helpButtonText}>Get help</Text>
+          <Text style={styles.title}>RU Relief</Text>
+          <Pressable hitSlop={8} onPress={() => router.push('/help')}>
+            <Text style={styles.helpLink}>Get Help</Text>
           </Pressable>
         </View>
 
-        <View style={styles.searchPanel}>
-          <Text style={styles.label}>Your campus</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
-            {CAMPUS_ZONES.map((zone) => (
+        <View style={styles.searchField}>
+          <TextInput
+            value={query}
+            onChangeText={(value) => {
+              setQuery(value);
+              if (value) setActiveCategory(null);
+            }}
+            onSubmitEditing={() => void performSearch(null)}
+            placeholder="Search Tylenol, Advil, thermometer"
+            placeholderTextColor={colors.inkMuted}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+            style={styles.input}
+          />
+        </View>
+
+        <View style={styles.segmented} accessibilityRole="tablist">
+          {CAMPUS_ZONES.map((zone) => {
+            const selected = campusZone === zone;
+            return (
               <Pressable
                 key={zone}
+                accessibilityRole="tab"
+                accessibilityState={{ selected }}
                 onPress={() => chooseCampusZone(zone)}
-                style={[styles.chip, campusZone === zone && styles.chipActive]}
+                style={[styles.segment, selected && styles.segmentSelected]}
               >
-                <Text style={[styles.chipText, campusZone === zone && styles.chipTextActive]}>{zone}</Text>
-              </Pressable>
-            ))}
-          </ScrollView>
-
-          <Text style={styles.label}>What product are you looking for?</Text>
-          <View style={styles.searchRow}>
-            <TextInput
-              value={query}
-              onChangeText={(value) => {
-                setQuery(value);
-                if (value) setActiveCategory(null);
-              }}
-              onSubmitEditing={() => void performSearch(null)}
-              placeholder="Try Tylenol, Advil, thermometer…"
-              placeholderTextColor={colors.inkMuted}
-              returnKeyType="search"
-              style={styles.input}
-            />
-            <Pressable style={styles.searchButton} onPress={() => void performSearch(null)}>
-              <Text style={styles.searchButtonText}>Search</Text>
-            </Pressable>
-          </View>
-
-          <Pressable style={styles.locationButton} onPress={() => void addCurrentLocation()}>
-            <Text style={styles.locationButtonText}>
-              {coordinates ? 'Location added for walking estimates' : 'Use my location for walking time'}
-            </Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>Browse by category</Text>
-          <View style={styles.categoryGrid}>
-            {CATEGORIES.map((category) => (
-              <Pressable
-                key={category}
-                onPress={() => chooseCategory(category)}
-                style={[styles.category, activeCategory === category && styles.categoryActive]}
-              >
-                <Text style={[styles.categoryText, activeCategory === category && styles.categoryTextActive]}>
-                  {category}
+                <Text numberOfLines={1} adjustsFontSizeToFit style={[styles.segmentText, selected && styles.segmentTextSelected]}>
+                  {zone === 'College Avenue' ? 'College Ave' : zone}
                 </Text>
               </Pressable>
-            ))}
-          </View>
+            );
+          })}
         </View>
+
+        <Group footer="Your location is sent with searches to estimate walking time.">
+          <Row
+            title="Walking times"
+            value={coordinates ? 'On' : 'Use my location'}
+            onPress={() => void addCurrentLocation()}
+          />
+        </Group>
 
         {error ? <ErrorState message={error} /> : null}
 
-        {loading ? (
-          <View style={styles.loading}>
-            <ActivityIndicator size="large" color={colors.primary} />
-            <Text style={styles.loadingText}>Checking {campusZone}…</Text>
-          </View>
-        ) : null}
+        {loading ? <LoadingState label={`Checking ${campusZone}…`} /> : null}
 
         {!loading && searched ? (
-          <View style={styles.section}>
-            <View style={styles.resultsHeader}>
-              <Text style={styles.sectionTitle}>Results</Text>
-              <Text style={styles.resultCount}>{results.length} found</Text>
-            </View>
+          <>
             {results.length ? (
               results.map((result, index) => <ResultCard key={result.inventoryId} result={result} rank={index} />)
             ) : !error ? (
-              <View style={styles.empty}>
-                <Text style={styles.emptyTitle}>Nothing listed on this campus</Text>
-                <Text style={styles.emptyText}>
-                  Try another product or use Get help for Rutgers Student Health contacts.
-                </Text>
-              </View>
+              <Group footer="Try another product, or use Get Help for Rutgers Student Health contacts.">
+                <Row title="Nothing listed on this campus" />
+              </Group>
             ) : null}
-          </View>
+            {results.length ? (
+              <Footnote>
+                {results.length} {results.length === 1 ? 'result' : 'results'} on {campusZone}, best match first.
+              </Footnote>
+            ) : null}
+          </>
         ) : null}
+
+        <Group header="Categories">
+          {CATEGORIES.map((category) => (
+            <Row
+              key={category}
+              title={category}
+              checked={activeCategory === category}
+              chevron={activeCategory !== category}
+              onPress={() => chooseCategory(category)}
+            />
+          ))}
+        </Group>
+
+        <Footnote>{PROTOTYPE_DISCLOSURE}</Footnote>
       </ScrollView>
     </SafeAreaView>
   );
@@ -183,37 +173,23 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.md, paddingBottom: 64, gap: spacing.lg },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing.md },
-  headerCopy: { flex: 1 },
-  title: { color: colors.ink, fontSize: 34, lineHeight: 40, fontWeight: '800', letterSpacing: -0.8 },
-  helpButton: { backgroundColor: colors.accentSoft, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.sm },
-  helpButtonText: { color: colors.danger, fontWeight: '700' },
-  searchPanel: { backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm, borderWidth: 1, borderColor: colors.border },
-  label: { color: colors.ink, fontSize: 14, fontWeight: '800', marginTop: 3 },
-  chipRow: { gap: spacing.sm, paddingVertical: 2 },
-  chip: { borderColor: colors.border, borderWidth: 1, paddingHorizontal: 13, paddingVertical: 9, borderRadius: radius.pill },
-  chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.inkMuted, fontSize: 13, fontWeight: '700' },
-  chipTextActive: { color: colors.white },
-  searchRow: { flexDirection: 'row', gap: spacing.sm },
-  input: { flex: 1, minHeight: 46, paddingHorizontal: 14, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.background, fontSize: 15 },
-  searchButton: { minHeight: 46, justifyContent: 'center', paddingHorizontal: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
-  searchButtonText: { color: colors.white, fontWeight: '700' },
-  locationButton: { alignSelf: 'flex-start', paddingVertical: 8 },
-  locationButtonText: { color: colors.primary, fontWeight: '800', fontSize: 13 },
-  section: { gap: spacing.md },
-  sectionTitle: { color: colors.ink, fontSize: 21, fontWeight: '900' },
-  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  category: { width: '48%', flexGrow: 1, minHeight: 54, justifyContent: 'center', padding: 12, borderRadius: radius.sm, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
-  categoryActive: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  categoryText: { color: colors.ink, fontSize: 13, fontWeight: '700' },
-  categoryTextActive: { color: colors.primaryDark },
-  loading: { alignItems: 'center', gap: spacing.sm, paddingVertical: 32 },
-  loadingText: { color: colors.inkMuted, fontWeight: '700' },
-  resultsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  resultCount: { color: colors.inkMuted, fontWeight: '700' },
-  empty: { backgroundColor: colors.surface, padding: spacing.lg, borderRadius: radius.md, gap: spacing.sm, borderWidth: 1, borderColor: colors.border },
-  emptyTitle: { color: colors.ink, fontWeight: '900', fontSize: 17 },
-  emptyText: { color: colors.inkMuted, lineHeight: 21 },
+  content: { paddingHorizontal: spacing.md, paddingBottom: 64, gap: spacing.lg },
+  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingTop: spacing.sm },
+  title: { color: colors.ink, fontSize: 34, lineHeight: 41, fontWeight: '700' },
+  helpLink: { color: colors.tint, fontSize: 17 },
+  searchField: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    minHeight: 36,
+    paddingHorizontal: 10,
+    borderRadius: radius.md,
+    backgroundColor: colors.surface,
+    marginTop: -spacing.sm,
+  },
+  input: { flex: 1, color: colors.ink, fontSize: 17, paddingVertical: 8 },
+  segmented: { flexDirection: 'row', padding: 2, borderRadius: radius.sm, backgroundColor: colors.surface, marginTop: -spacing.sm },
+  segment: { flexGrow: 1, paddingVertical: 6, paddingHorizontal: 6, borderRadius: 7, alignItems: 'center' },
+  segmentSelected: { backgroundColor: colors.surfacePressed },
+  segmentText: { color: colors.ink, fontSize: 13 },
+  segmentTextSelected: { fontWeight: '600' },
 });

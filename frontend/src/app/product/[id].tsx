@@ -1,10 +1,10 @@
 import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
-import { AvailabilityBadge, Card, ErrorState, LoadingState, SectionTitle } from '@/components/ui';
+import { ErrorState, Group, LoadingState, Row, StatusText } from '@/components/ui';
 import { Screen } from '@/components/screen';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, spacing } from '@/constants/theme';
 import { getProduct } from '@/services/api';
 import type { Product } from '@/types/api';
 
@@ -46,64 +46,55 @@ export default function ProductScreen() {
 
   return (
     <Screen>
-      <View style={styles.hero}>
-        <Text style={styles.category}>{product.category.toUpperCase()}</Text>
+      <View style={styles.heading}>
         <Text style={styles.title}>{product.productName}</Text>
-        <Text style={styles.ingredient}>{product.activeIngredientOrType}</Text>
+        {product.activeIngredientOrType ? <Text style={styles.subtitle}>{product.activeIngredientOrType}</Text> : null}
       </View>
 
-      <Card>
-        <SectionTitle>What it is</SectionTitle>
-        <Text style={styles.body}>{product.simpleDefinition}</Text>
-        <Text style={styles.label}>Typical use</Text>
-        <Text style={styles.body}>{product.typicalUse}</Text>
-      </Card>
+      <Group header="About">
+        <Row title="Category" value={product.category} />
+        <Row title={product.simpleDefinition} />
+        {product.typicalUse ? <Row title="Typical use" subtitle={product.typicalUse} /> : null}
+      </Group>
 
-      <Card style={styles.cautionCard}>
-        <Text style={styles.cautionTitle}>Read before purchasing</Text>
-        <Text style={styles.cautionText}>{product.labelCaution}</Text>
-        <Text style={styles.cautionText}>Follow the package label. RU Relief does not provide dosing or medical advice.</Text>
-      </Card>
+      <Group
+        header="Label caution"
+        footer="Follow the package label. RU Relief does not provide dosing or medical advice."
+      >
+        <Row title={product.labelCaution} />
+      </Group>
 
-      <Card>
-        <Text style={styles.label}>Proposed purchase limit</Text>
-        <Text style={styles.body}>{product.quantityLimit}</Text>
-        <Text style={styles.label}>Retail swipe status</Text>
-        <Text style={styles.body}>Pending Rutgers approval for health products</Text>
-      </Card>
+      <Group header="Purchase">
+        <Row title="Proposed limit" subtitle={product.quantityLimit} />
+        <Row title="Retail swipe" subtitle="Pending Rutgers approval for health products" />
+      </Group>
 
-      <SectionTitle>Proposed campus availability</SectionTitle>
-      {stockedLocations.map((location) => (
-        <Pressable
-          key={location.inventoryId}
-          onPress={() => router.push(`/location/${location.locationId}`)}
-          style={styles.locationCard}
-        >
-          <View style={styles.locationCopy}>
-            <Text style={styles.locationName}>{location.locationName}</Text>
-            <Text style={styles.locationZone}>{location.campusZone}</Text>
-            <Text style={styles.confidence}>{location.reportedConfidence}</Text>
-          </View>
-          <AvailabilityBadge status={location.availability} />
-        </Pressable>
-      ))}
+      <Group
+        header="Proposed campus availability"
+        footer={stockedLocations.length ? undefined : 'Not proposed for any campus location.'}
+      >
+        {stockedLocations.map((location) => (
+          <Row
+            key={location.inventoryId}
+            title={location.locationName}
+            subtitle={
+              <>
+                <StatusText status={location.availability} />
+                {` · ${location.campusZone}`}
+              </>
+            }
+            detail={location.reportedConfidence}
+            chevron
+            onPress={() => router.push(`/location/${location.locationId}`)}
+          />
+        ))}
+      </Group>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { paddingVertical: spacing.md, gap: spacing.xs },
-  category: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  title: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: '900' },
-  ingredient: { color: colors.inkMuted, fontSize: 16 },
-  label: { color: colors.ink, fontSize: 13, fontWeight: '900', marginTop: spacing.xs },
-  body: { color: colors.inkMuted, fontSize: 15, lineHeight: 23 },
-  cautionCard: { backgroundColor: colors.lowSoft, borderColor: '#E8C989' },
-  cautionTitle: { color: colors.low, fontWeight: '900', fontSize: 16 },
-  cautionText: { color: '#704817', lineHeight: 21 },
-  locationCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md },
-  locationCopy: { flex: 1, gap: 2 },
-  locationName: { color: colors.ink, fontWeight: '900', fontSize: 16 },
-  locationZone: { color: colors.primary, fontWeight: '700', fontSize: 13 },
-  confidence: { color: colors.inkMuted, fontSize: 12 },
+  heading: { gap: 2, paddingHorizontal: spacing.xs },
+  title: { color: colors.ink, fontSize: 28, lineHeight: 34, fontWeight: '700' },
+  subtitle: { color: colors.inkMuted, fontSize: 17, lineHeight: 22 },
 });

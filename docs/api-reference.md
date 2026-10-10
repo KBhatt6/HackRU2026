@@ -97,7 +97,7 @@ Response:
 ```
 
 Sorting: open now → in stock → `score` descending (all descending). The first
-item is rendered as "BEST MATCH". Full semantics in
+item is rendered under a "Best match" header. Full semantics in
 [search-ranking.md](search-ranking.md).
 
 ---

@@ -9,20 +9,20 @@ export default function RootLayout() {
       <StatusBar style="light" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: colors.surface },
-          headerTintColor: colors.ink,
-          headerTitleStyle: { fontWeight: '700' },
+          headerStyle: { backgroundColor: colors.background },
+          headerTintColor: colors.tint,
+          headerTitleStyle: { color: colors.ink, fontWeight: '600' },
           headerShadowVisible: false,
           contentStyle: { backgroundColor: colors.background },
         }}
       >
         <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="product/[id]" options={{ title: 'Product details' }} />
-        <Stack.Screen name="location/[id]" options={{ title: 'Location details' }} />
-        <Stack.Screen name="reserve/[inventoryId]" options={{ title: 'Reserve item' }} />
-        <Stack.Screen name="reservation/[id]" options={{ title: 'Your reservation' }} />
-        <Stack.Screen name="report/[inventoryId]" options={{ title: 'Report availability' }} />
-        <Stack.Screen name="help" options={{ title: 'Get real help' }} />
+        <Stack.Screen name="product/[id]" options={{ title: 'Product' }} />
+        <Stack.Screen name="location/[id]" options={{ title: 'Location' }} />
+        <Stack.Screen name="reserve/[inventoryId]" options={{ title: 'Reserve' }} />
+        <Stack.Screen name="reservation/[id]" options={{ title: 'Reservation' }} />
+        <Stack.Screen name="report/[inventoryId]" options={{ title: 'Report Stock' }} />
+        <Stack.Screen name="help" options={{ title: 'Get Help' }} />
       </Stack>
     </>
   );

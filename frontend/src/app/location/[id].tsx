@@ -1,11 +1,11 @@
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Linking, StyleSheet, Text, View } from 'react-native';
 
-import { AvailabilityBadge, Card, ErrorState, LoadingState, SectionTitle } from '@/components/ui';
+import { ErrorState, Group, LoadingState, Row, StatusText } from '@/components/ui';
 import { Screen } from '@/components/screen';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, spacing } from '@/constants/theme';
 import { MAPBOX_ACCESS_TOKEN } from '@/constants/config';
 import { getLocation } from '@/services/api';
 import type { Location as LocationRecord } from '@/types/api';
@@ -89,76 +89,61 @@ export default function LocationScreen() {
 
   return (
     <Screen>
-      <View style={styles.hero}>
-        <Text style={styles.zone}>{location.campusZone.toUpperCase()}</Text>
+      <View style={styles.heading}>
         <Text style={styles.title}>{location.locationName}</Text>
-        <Text style={styles.description}>{location.siteDescription}</Text>
-        {!location.verified ? <Text style={styles.unverified}>Location details need Rutgers confirmation.</Text> : null}
-        <Pressable style={styles.directionsButton} onPress={() => void getDirections()}>
-          <Text style={styles.directionsText}>Get walking directions</Text>
-        </Pressable>
-        {routeLabel ? <Text style={styles.routeLabel}>{routeLabel}</Text> : null}
+        <Text style={styles.subtitle}>{location.campusZone}</Text>
       </View>
 
-      <Card>
-        <SectionTitle>Payment information</SectionTitle>
-        <Text style={styles.body}>Meal swipes for food today: {location.mealSwipeEligibleForFoodToday ? 'Yes' : 'No'}</Text>
-        <Text style={styles.body}>RU Express accepted today: {location.ruExpressAcceptedToday ? 'Yes' : 'No'}</Text>
-        <Text style={styles.note}>{location.swipeNotes}</Text>
-        <View style={styles.proposedBox}>
-          <Text style={styles.proposedTitle}>Health-item swipe use is proposed</Text>
-          <Text style={styles.proposedText}>The existing food swipe policy does not verify that medicine can be purchased today.</Text>
-        </View>
-      </Card>
+      <Group
+        footer={
+          [location.siteDescription, location.verified ? null : 'Location details need Rutgers confirmation.']
+            .filter(Boolean)
+            .join(' ') || undefined
+        }
+      >
+        <Row title="Get walking directions" tone="tint" value={routeLabel} onPress={() => void getDirections()} />
+      </Group>
 
-      <Card>
-        <SectionTitle>Hours</SectionTitle>
+      <Group
+        header="Payment"
+        footer={`${location.swipeNotes ? `${location.swipeNotes} ` : ''}Health-item swipe use is proposed; the existing food swipe policy does not verify that medicine can be purchased today.`}
+      >
+        <Row title="Meal swipes for food today" value={location.mealSwipeEligibleForFoodToday ? 'Yes' : 'No'} />
+        <Row title="RU Express today" value={location.ruExpressAcceptedToday ? 'Yes' : 'No'} />
+      </Group>
+
+      <Group header="Hours" footer={location.hoursBasis || undefined}>
         {location.hours?.map((hours) => (
-          <View key={hours.dayOfWeek} style={styles.hoursRow}>
-            <Text style={styles.day}>{DAY_NAMES[hours.dayOfWeek]}</Text>
-            <Text style={styles.time}>
-              {hours.hoursKnown
+          <Row
+            key={hours.dayOfWeek}
+            title={DAY_NAMES[hours.dayOfWeek]}
+            value={
+              hours.hoursKnown
                 ? `${formatMinute(hours.opensMinute)} – ${formatMinute(hours.closesMinute)}`
-                : 'Not listed'}
-            </Text>
-          </View>
+                : 'Not listed'
+            }
+          />
         ))}
-        <Text style={styles.note}>{location.hoursBasis}</Text>
-      </Card>
+      </Group>
 
-      <SectionTitle>Proposed health inventory</SectionTitle>
-      {location.inventory?.map((item) => (
-        <View key={item.inventoryId} style={styles.inventoryRow}>
-          <View style={styles.inventoryCopy}>
-            <Text style={styles.productName}>{item.productName}</Text>
-            <Text style={styles.confidence}>{item.reportedConfidence}</Text>
-          </View>
-          <AvailabilityBadge status={item.availability} />
-        </View>
-      ))}
+      <Group header="Proposed health inventory">
+        {location.inventory?.map((item) => (
+          <Row
+            key={item.inventoryId}
+            title={item.productName}
+            subtitle={<StatusText status={item.availability} />}
+            detail={item.reportedConfidence}
+            chevron
+            onPress={() => router.push(`/product/${item.productId}`)}
+          />
+        ))}
+      </Group>
     </Screen>
   );
 }
 
 const styles = StyleSheet.create({
-  hero: { paddingVertical: spacing.md, gap: spacing.xs },
-  zone: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  title: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: '900' },
-  description: { color: colors.inkMuted, fontSize: 15, lineHeight: 22 },
-  unverified: { color: colors.danger, fontWeight: '800', marginTop: spacing.sm },
-  directionsButton: { alignSelf: 'flex-start', backgroundColor: colors.primary, paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.sm, marginTop: spacing.sm },
-  directionsText: { color: colors.white, fontWeight: '700' },
-  routeLabel: { color: colors.primaryDark, fontWeight: '700' },
-  body: { color: colors.ink, fontSize: 15, lineHeight: 22 },
-  note: { color: colors.inkMuted, fontSize: 13, lineHeight: 20 },
-  proposedBox: { backgroundColor: colors.lowSoft, borderRadius: radius.sm, padding: 12, gap: 3, marginTop: spacing.sm },
-  proposedTitle: { color: colors.low, fontWeight: '900' },
-  proposedText: { color: '#704817', fontSize: 13, lineHeight: 19 },
-  hoursRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md, paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: colors.surfaceMuted },
-  day: { color: colors.ink, fontWeight: '700' },
-  time: { color: colors.inkMuted },
-  inventoryRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md },
-  inventoryCopy: { flex: 1 },
-  productName: { color: colors.ink, fontSize: 15, fontWeight: '800' },
-  confidence: { color: colors.inkMuted, fontSize: 12, marginTop: 2 },
+  heading: { gap: 2, paddingHorizontal: spacing.xs },
+  title: { color: colors.ink, fontSize: 28, lineHeight: 34, fontWeight: '700' },
+  subtitle: { color: colors.inkMuted, fontSize: 17, lineHeight: 22 },
 });
