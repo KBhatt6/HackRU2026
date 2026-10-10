@@ -92,6 +92,11 @@ export default function HomeScreen() {
           </Pressable>
         </View>
 
+        <View style={styles.welcomeCard}>
+          <View style={styles.welcomeMark}><Text style={styles.welcomeMarkText}>RU</Text></View>
+          <View style={styles.welcomeCopy}><Text style={styles.welcomeTitle}>Welcome, Scarlet Knight</Text><Text style={styles.welcomeText}>Find what you need on campus today.</Text></View>
+        </View>
+
         <View style={styles.searchPanel}>
           <Text style={styles.label}>Your campus</Text>
           <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.chipRow}>
@@ -121,20 +126,20 @@ export default function HomeScreen() {
               style={styles.input}
             />
             <Pressable style={styles.searchButton} onPress={() => void performSearch(null)}>
-              <Text style={styles.searchButtonText}>Search</Text>
+              <Text style={styles.searchButtonText}>⌕</Text>
             </Pressable>
+            <Pressable style={styles.askButton} onPress={() => void performSearch(null)}><Text style={styles.askText}>Ask RU Relief</Text></Pressable>
           </View>
 
-          <Pressable style={styles.locationButton} onPress={() => void addCurrentLocation()}>
-            <Text style={styles.locationButtonText}>
-              {coordinates ? 'Location added for walking estimates' : 'Use my location for walking time'}
-            </Text>
-          </Pressable>
         </View>
+
+        <Pressable style={styles.locationButton} onPress={() => void addCurrentLocation()}>
+          <Text style={styles.locationButtonText}>{coordinates ? 'Location added' : 'Add location'}</Text>
+        </Pressable>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Browse by category</Text>
-          <View style={styles.categoryGrid}>
+          <ScrollView horizontal showsHorizontalScrollIndicator indicatorStyle="black" contentContainerStyle={styles.categoryGrid}>
             {CATEGORIES.map((category) => (
               <Pressable
                 key={category}
@@ -146,8 +151,13 @@ export default function HomeScreen() {
                 </Text>
               </Pressable>
             ))}
-          </View>
+          </ScrollView>
         </View>
+
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
+          <View style={styles.featureCard}><Text style={styles.featureEyebrow}>NEAREST TO YOU</Text><Text style={styles.featureTitle}>{results[0]?.productName || 'Advil'}</Text><Text style={styles.featureText}>{results[0]?.locationName || 'Livingston Student Center'} · {results[0]?.travelMinutes ? `${results[0].travelMinutes} min walk` : '0.3 mi'} · in stock</Text><Pressable style={styles.reserveButton} onPress={() => results[0] ? router.push(`/reserve/${results[0].inventoryId}`) : void performSearch('Pain & fever')}><Text style={styles.reserveText}>Reserve</Text></Pressable></View>
+          <View style={styles.featureCard}><Text style={styles.featureEyebrow}>ON THE WAY</Text><Text style={styles.featureTitle}>Request delivery</Text><Text style={styles.featureText}>Campus pickup support · Avg. 15 min</Text><Text style={styles.comingSoon}>Coming soon</Text></View>
+        </ScrollView>
 
         {error ? <ErrorState message={error} /> : null}
 
@@ -183,37 +193,42 @@ export default function HomeScreen() {
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background },
-  content: { padding: spacing.md, paddingBottom: 64, gap: spacing.lg },
+  content: { padding: spacing.md, paddingBottom: 48, gap: spacing.lg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing.md },
   headerCopy: { flex: 1 },
-  title: { color: colors.ink, fontFamily: fonts.body, fontSize: 34, lineHeight: 40, fontWeight: '800', letterSpacing: -0.8 },
-  helpButton: { backgroundColor: colors.accentSoft, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.sm },
-  helpButtonText: { color: colors.danger, fontWeight: '700' },
-  searchPanel: { backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm, borderWidth: 1, borderColor: colors.border },
+  title: { color: colors.white, fontFamily: fonts.body, fontSize: 34, lineHeight: 40, fontWeight: '800', letterSpacing: -0.8 },
+  helpButton: { backgroundColor: colors.accentSoft, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.pill },
+  helpButtonText: { color: colors.primaryDark, fontWeight: '700' },
+  welcomeCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: 24, padding: spacing.md, gap: spacing.sm, shadowColor: '#000', shadowOpacity: 0.16, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
+  welcomeMark: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
+  welcomeMarkText: { color: colors.white, fontWeight: '900' }, welcomeCopy: { flex: 1 }, welcomeTitle: { color: colors.ink, fontSize: 17, fontWeight: '800' }, welcomeText: { color: colors.inkMuted, marginTop: 2 },
+  searchPanel: { backgroundColor: colors.surface, borderRadius: 24, padding: spacing.md, gap: spacing.sm, shadowColor: '#000', shadowOpacity: 0.25, shadowRadius: 12, shadowOffset: { width: 0, height: 4 }, elevation: 3 },
   label: { color: colors.ink, fontFamily: fonts.body, fontSize: 14, fontWeight: '800', marginTop: 3 },
   chipRow: { gap: spacing.sm, paddingVertical: 2 },
-  chip: { borderColor: colors.border, borderWidth: 1, paddingHorizontal: 13, paddingVertical: 9, borderRadius: radius.pill },
+  chip: { backgroundColor: '#D8D3CC', paddingHorizontal: 15, paddingVertical: 10, borderRadius: radius.pill },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  chipText: { color: colors.inkMuted, fontSize: 13, fontWeight: '700' },
+  chipText: { color: colors.ink, fontSize: 13, fontWeight: '700' },
   chipTextActive: { color: colors.white },
   searchRow: { flexDirection: 'row', gap: spacing.sm },
-  input: { flex: 1, minHeight: 46, paddingHorizontal: 14, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.background, fontFamily: fonts.body, fontSize: 15 },
+  input: { flex: 1, minHeight: 46, paddingHorizontal: 14, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.surface, fontFamily: fonts.body, fontSize: 15 },
   searchButton: { minHeight: 46, justifyContent: 'center', paddingHorizontal: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
-  searchButtonText: { color: colors.white, fontWeight: '700' },
-  locationButton: { alignSelf: 'flex-start', paddingVertical: 8 },
-  locationButtonText: { color: colors.primary, fontWeight: '800', fontSize: 13 },
+  searchButtonText: { color: colors.white, fontWeight: '700', fontSize: 24 },
+  askButton: { minHeight: 42, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 999, backgroundColor: colors.primarySoft }, askText: { color: colors.primaryDark, fontWeight: '800', fontSize: 12 },
+  locationButton: { alignSelf: 'flex-start', backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 11, borderRadius: radius.pill },
+  locationButtonText: { color: colors.white, fontWeight: '800', fontSize: 13 },
   section: { gap: spacing.md },
-  sectionTitle: { color: colors.ink, fontSize: 21, fontWeight: '900' },
-  categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  category: { width: '48%', flexGrow: 1, minHeight: 54, justifyContent: 'center', padding: 12, borderRadius: radius.sm, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
+  sectionTitle: { color: colors.white, fontSize: 21, fontWeight: '900' },
+  categoryGrid: { flexDirection: 'row', gap: spacing.sm },
+  category: { minHeight: 42, justifyContent: 'center', paddingHorizontal: 15, borderRadius: radius.pill, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   categoryActive: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
   categoryText: { color: colors.ink, fontFamily: fonts.body, fontSize: 13, fontWeight: '700' },
   categoryTextActive: { color: colors.primaryDark },
   loading: { alignItems: 'center', gap: spacing.sm, paddingVertical: 32 },
-  loadingText: { color: colors.inkMuted, fontWeight: '700' },
+  loadingText: { color: colors.white, fontWeight: '700' },
   resultsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
-  resultCount: { color: colors.inkMuted, fontWeight: '700' },
+  resultCount: { color: '#D7D2CD', fontWeight: '700' },
   empty: { backgroundColor: colors.surface, padding: spacing.lg, borderRadius: radius.md, gap: spacing.sm, borderWidth: 1, borderColor: colors.border },
   emptyTitle: { color: colors.ink, fontWeight: '900', fontSize: 17 },
   emptyText: { color: colors.inkMuted, lineHeight: 21 },
+  carousel: { gap: spacing.md }, featureCard: { width: 292, minHeight: 178, padding: spacing.lg, borderRadius: 24, backgroundColor: colors.surface, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 4 }, featureEyebrow: { color: colors.primaryDark, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 }, featureTitle: { color: colors.ink, fontSize: 24, fontWeight: '900', marginTop: spacing.sm }, featureText: { color: colors.inkMuted, lineHeight: 20, marginTop: spacing.xs }, reserveButton: { alignSelf: 'flex-start', backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 9, borderRadius: radius.pill, marginTop: spacing.md }, reserveText: { color: colors.white, fontWeight: '800' }, comingSoon: { color: '#806900', fontWeight: '800', marginTop: spacing.md },
 });

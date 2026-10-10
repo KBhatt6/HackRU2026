@@ -6,34 +6,21 @@ import { colors, fonts, radius, spacing } from '@/constants/theme';
 import type { SearchResult } from '@/types/api';
 
 export function ResultCard({ result, rank }: { result: SearchResult; rank: number }) {
-  const openLabel = result.isOpen === true ? `Open${result.closesAt ? ` until ${result.closesAt}` : ''}` : result.isOpen === false ? 'Closed' : 'Hours unknown';
-  const distanceLabel = result.travelMinutes ? `${result.travelMinutes} min walk` : 'Travel time unavailable';
-
   return (
     <View style={[styles.card, rank === 0 && styles.bestCard]}>
-      <View style={styles.topRow}>
+      <Pressable style={styles.topRow} onPress={() => router.push(`/product/${result.productId}`)}>
         <View style={styles.flex}>
           {rank === 0 ? <Text style={styles.recommended}>BEST MATCH</Text> : null}
-          <Pressable onPress={() => router.push(`/product/${result.productId}`)}>
-            <Text style={styles.product}>{result.productName}</Text>
-          </Pressable>
+          <Text style={styles.product}>{result.productName}</Text>
           <Pressable onPress={() => router.push(`/location/${result.locationId}`)}>
             <Text style={styles.location}>{result.locationName}</Text>
           </Pressable>
         </View>
-        <Text style={styles.score}>{Math.round(result.score * 100)}</Text>
-      </View>
+      </Pressable>
 
       <View style={styles.badges}>
         <AvailabilityBadge status={result.availability} />
         <ConfidenceBadge confidence={result.confidence} />
-      </View>
-
-      <View style={styles.facts}>
-        <Text style={styles.fact}>{openLabel}</Text>
-        <Text style={styles.dot}>•</Text>
-        <Text style={styles.fact}>{distanceLabel}</Text>
-        {result.closingSoon ? <Text style={styles.warning}>Closing soon</Text> : null}
       </View>
 
       {result.minutesSinceVerified !== null ? (
@@ -41,8 +28,6 @@ export function ResultCard({ result, rank }: { result: SearchResult; rank: numbe
       ) : (
         <Text style={styles.muted}>Prototype inventory has not been verified</Text>
       )}
-
-      <Text style={styles.payment}>{result.paymentOptions || 'Payment details unavailable'}</Text>
 
       <View style={styles.actions}>
         <Pressable
@@ -88,14 +73,14 @@ const styles = StyleSheet.create({
   recommended: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1, marginBottom: 3 },
   product: { color: colors.ink, fontFamily: fonts.body, fontSize: 20, lineHeight: 25, fontWeight: '900' },
   location: { color: colors.primary, fontFamily: fonts.body, fontSize: 15, lineHeight: 22, fontWeight: '700', marginTop: 2 },
-  score: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 13, fontWeight: '800' },
+  score: { display: 'none' },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
-  facts: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
-  fact: { color: colors.ink, fontFamily: fonts.body, fontWeight: '700', fontSize: 13 },
-  dot: { color: colors.border },
-  warning: { color: colors.low, fontWeight: '800', fontSize: 13 },
+  facts: { display: 'none' },
+  fact: { display: 'none' },
+  dot: { display: 'none' },
+  warning: { display: 'none' },
   muted: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 13 },
-  payment: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 12, lineHeight: 18 },
+  payment: { display: 'none' },
   actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
   directionsButton: { backgroundColor: '#147BFF', borderRadius: radius.sm, minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },
   directionsText: { color: colors.white, fontWeight: '700', fontSize: 13 },
