@@ -1,0 +1,25 @@
+{
+	"folders": [
+		{
+			"name": "HackRU2026",
+			"path": "../../../../HACKRU2026/HackRU2026"
+		},
+		{
+			"name": "backend",
+			"path": "../../../ru-relief-backend/backend"
+		},
+		{
+			"name": "tests",
+			"path": "../../../ru-relief-backend/tests"
+		},
+		{
+			"name": "database",
+			"path": "../../../ru-relief-backend/database"
+		},
+		{
+			"name": "frontend",
+			"path": ".."
+		}
+	],
+	"settings": {}
+}
