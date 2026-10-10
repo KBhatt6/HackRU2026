@@ -16,7 +16,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { ResultCard } from '@/components/result-card';
 import { ErrorState } from '@/components/ui';
 import { CAMPUS_ZONES, CATEGORIES } from '@/constants/config';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { searchInventory } from '@/services/api';
 import type { SearchResult } from '@/types/api';
 
@@ -186,18 +186,18 @@ const styles = StyleSheet.create({
   content: { padding: spacing.md, paddingBottom: 64, gap: spacing.lg },
   header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', gap: spacing.md },
   headerCopy: { flex: 1 },
-  title: { color: colors.ink, fontSize: 34, lineHeight: 40, fontWeight: '800', letterSpacing: -0.8 },
+  title: { color: colors.ink, fontFamily: fonts.body, fontSize: 34, lineHeight: 40, fontWeight: '800', letterSpacing: -0.8 },
   helpButton: { backgroundColor: colors.accentSoft, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.sm },
   helpButtonText: { color: colors.danger, fontWeight: '700' },
   searchPanel: { backgroundColor: colors.surface, borderRadius: radius.md, padding: spacing.md, gap: spacing.sm, borderWidth: 1, borderColor: colors.border },
-  label: { color: colors.ink, fontSize: 14, fontWeight: '800', marginTop: 3 },
+  label: { color: colors.ink, fontFamily: fonts.body, fontSize: 14, fontWeight: '800', marginTop: 3 },
   chipRow: { gap: spacing.sm, paddingVertical: 2 },
   chip: { borderColor: colors.border, borderWidth: 1, paddingHorizontal: 13, paddingVertical: 9, borderRadius: radius.pill },
   chipActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   chipText: { color: colors.inkMuted, fontSize: 13, fontWeight: '700' },
   chipTextActive: { color: colors.white },
   searchRow: { flexDirection: 'row', gap: spacing.sm },
-  input: { flex: 1, minHeight: 46, paddingHorizontal: 14, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.background, fontSize: 15 },
+  input: { flex: 1, minHeight: 46, paddingHorizontal: 14, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, color: colors.ink, backgroundColor: colors.background, fontFamily: fonts.body, fontSize: 15 },
   searchButton: { minHeight: 46, justifyContent: 'center', paddingHorizontal: 16, borderRadius: radius.sm, backgroundColor: colors.primary },
   searchButtonText: { color: colors.white, fontWeight: '700' },
   locationButton: { alignSelf: 'flex-start', paddingVertical: 8 },
@@ -207,7 +207,7 @@ const styles = StyleSheet.create({
   categoryGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   category: { width: '48%', flexGrow: 1, minHeight: 54, justifyContent: 'center', padding: 12, borderRadius: radius.sm, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border },
   categoryActive: { backgroundColor: colors.primarySoft, borderColor: colors.primary },
-  categoryText: { color: colors.ink, fontSize: 13, fontWeight: '700' },
+  categoryText: { color: colors.ink, fontFamily: fonts.body, fontSize: 13, fontWeight: '700' },
   categoryTextActive: { color: colors.primaryDark },
   loading: { alignItems: 'center', gap: spacing.sm, paddingVertical: 32 },
   loadingText: { color: colors.inkMuted, fontWeight: '700' },

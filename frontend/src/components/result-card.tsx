@@ -2,7 +2,7 @@ import { router } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvailabilityBadge, ConfidenceBadge, PrimaryButton, SecondaryButton } from '@/components/ui';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
 import type { SearchResult } from '@/types/api';
 
 export function ResultCard({ result, rank }: { result: SearchResult; rank: number }) {
@@ -86,16 +86,16 @@ const styles = StyleSheet.create({
   topRow: { flexDirection: 'row', gap: spacing.md },
   flex: { flex: 1 },
   recommended: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1, marginBottom: 3 },
-  product: { color: colors.ink, fontSize: 20, lineHeight: 25, fontWeight: '900' },
-  location: { color: colors.primary, fontSize: 15, lineHeight: 22, fontWeight: '700', marginTop: 2 },
-  score: { color: colors.inkMuted, fontSize: 13, fontWeight: '800' },
+  product: { color: colors.ink, fontFamily: fonts.body, fontSize: 20, lineHeight: 25, fontWeight: '900' },
+  location: { color: colors.primary, fontFamily: fonts.body, fontSize: 15, lineHeight: 22, fontWeight: '700', marginTop: 2 },
+  score: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 13, fontWeight: '800' },
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
   facts: { flexDirection: 'row', flexWrap: 'wrap', alignItems: 'center', gap: 6 },
-  fact: { color: colors.ink, fontWeight: '700', fontSize: 13 },
+  fact: { color: colors.ink, fontFamily: fonts.body, fontWeight: '700', fontSize: 13 },
   dot: { color: colors.border },
   warning: { color: colors.low, fontWeight: '800', fontSize: 13 },
-  muted: { color: colors.inkMuted, fontSize: 13 },
-  payment: { color: colors.inkMuted, fontSize: 12, lineHeight: 18 },
+  muted: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 13 },
+  payment: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 12, lineHeight: 18 },
   actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
   directionsButton: { backgroundColor: '#147BFF', borderRadius: radius.sm, minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },
   directionsText: { color: colors.white, fontWeight: '700', fontSize: 13 },

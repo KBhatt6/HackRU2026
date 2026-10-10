@@ -1,7 +1,7 @@
 import type { PropsWithChildren } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
 
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
 import type { AvailabilityStatus } from '@/types/api';
 
 export function Card({ children, style }: PropsWithChildren<{ style?: ViewStyle }>) {
@@ -105,7 +105,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
   },
-  sectionTitle: { color: colors.ink, fontSize: 20, lineHeight: 26, fontWeight: '800' },
+  sectionTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 20, lineHeight: 26, fontWeight: '800' },
   primaryButton: {
     minHeight: 44,
     borderRadius: radius.md,
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   destructiveButton: { backgroundColor: colors.danger },
   disabledButton: { opacity: 0.42 },
   pressed: { opacity: 0.75 },
-  primaryButtonText: { color: colors.white, fontWeight: '700', fontSize: 15 },
+  primaryButtonText: { color: colors.white, fontFamily: fonts.body, fontWeight: '700', fontSize: 15 },
   secondaryButton: {
     minHeight: 44,
     borderRadius: radius.md,
@@ -127,11 +127,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: spacing.md,
   },
-  secondaryButtonText: { color: colors.primaryDark, fontWeight: '700', fontSize: 15 },
+  secondaryButtonText: { color: colors.primaryDark, fontFamily: fonts.body, fontWeight: '700', fontSize: 15 },
   loading: { paddingVertical: 60, gap: spacing.md, alignItems: 'center' },
-  muted: { color: colors.inkMuted, fontSize: 14, lineHeight: 21 },
+  muted: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 14, lineHeight: 21 },
   errorCard: { backgroundColor: colors.dangerSoft, borderColor: '#F4BCC7' },
-  errorTitle: { color: colors.danger, fontWeight: '800', fontSize: 16 },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: radius.pill },
-  badgeText: { fontSize: 12, lineHeight: 16, fontWeight: '800' },
+  errorTitle: { color: colors.danger, fontFamily: fonts.body, fontWeight: '800', fontSize: 16 },
+  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 0, borderWidth: 1, borderColor: colors.border },
+  badgeText: { fontFamily: fonts.body, fontSize: 12, lineHeight: 16, fontWeight: '800' },
 });

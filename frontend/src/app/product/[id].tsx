@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvailabilityBadge, Card, ErrorState, LoadingState, SectionTitle } from '@/components/ui';
 import { Screen } from '@/components/screen';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { getProduct } from '@/services/api';
 import type { Product } from '@/types/api';
 
@@ -60,7 +60,7 @@ export default function ProductScreen() {
       </Card>
 
       <Card style={styles.cautionCard}>
-        <Text style={styles.cautionTitle}>Read before purchasing</Text>
+        <Text style={styles.cautionTitle}>WARNING</Text>
         <Text style={styles.cautionText}>{product.labelCaution}</Text>
         <Text style={styles.cautionText}>Follow the package label. RU Relief does not provide dosing or medical advice.</Text>
       </Card>
@@ -93,14 +93,14 @@ export default function ProductScreen() {
 
 const styles = StyleSheet.create({
   hero: { paddingVertical: spacing.md, gap: spacing.xs },
-  category: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  title: { color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: '900' },
-  ingredient: { color: colors.inkMuted, fontSize: 16 },
-  label: { color: colors.ink, fontSize: 13, fontWeight: '900', marginTop: spacing.xs },
-  body: { color: colors.inkMuted, fontSize: 15, lineHeight: 23 },
-  cautionCard: { backgroundColor: colors.lowSoft, borderColor: '#E8C989' },
-  cautionTitle: { color: colors.low, fontWeight: '900', fontSize: 16 },
-  cautionText: { color: colors.low, lineHeight: 21 },
+  category: { color: colors.primary, fontFamily: fonts.body, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
+  title: { color: colors.ink, fontFamily: fonts.body, fontSize: 32, lineHeight: 38, fontWeight: '900' },
+  ingredient: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 16 },
+  label: { color: colors.ink, fontFamily: fonts.body, fontSize: 13, fontWeight: '900', marginTop: spacing.xs },
+  body: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 15, lineHeight: 23 },
+  cautionCard: { backgroundColor: colors.lowSoft, borderColor: colors.low, borderWidth: 2 },
+  cautionTitle: { color: colors.low, fontFamily: fonts.body, fontWeight: '900', fontSize: 18, letterSpacing: 2 },
+  cautionText: { color: colors.low, fontFamily: fonts.body, lineHeight: 21 },
   locationCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md },
   locationCopy: { flex: 1, gap: 2 },
   locationName: { color: colors.ink, fontWeight: '900', fontSize: 16 },
