@@ -49,10 +49,10 @@ Path alias: `@/*` → `src/*` (`tsconfig.json`).
 
 | Route | Purpose |
 | --- | --- |
-| `/` (index) | Choose campus zone, type a query or tap a category, and optionally use location for walking estimates. Changing campus refreshes the active category or text search. Renders a compact `ResultCard` list; the home header omits the explanatory prototype panel while API/detail disclosures remain intact. |
+| `/` (index) | Choose campus zone, type a query or tap a category, and optionally use location for walking estimates. Changing campus refreshes the active category or text search. Results show distance/time when location is enabled and include a blue `Get directions` action that opens the location's in-app Mapbox directions flow. |
 | `/help` | Loads `/api/health-contacts`; pins a "Call 911" emergency card; `contactLink()` parses phone/email/SMS (741741, 988) into `tel:`/`sms:`/`mailto:` URLs. |
 | `/product/[id]` | Product detail via `getProduct()` — definition, typical use, label caution, per-location availability. |
-| `/location/[id]` | Location detail via `getLocation()` — hours per weekday, payment/swipe notes, proposed health section, inventory list, and Mapbox walking directions when coordinates and `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN` are configured. |
+| `/location/[id]` | Location detail via `getLocation()` — hours per weekday, payment/swipe notes, proposed health section, inventory list, and in-app Mapbox walking distance/time when coordinates and `EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN` are configured. |
 | `/reserve/[inventoryId]` | Picks pickup method (`Self pickup`, `Authorized friend pickup`) and payment method (`Proposed retail swipe`, `RU Express`, `Cash or card`), then `createReservation()` and `router.replace` to the reservation screen, passing `pickupCode` in the route params. |
 | `/reservation/[id]` | Countdown to `expiresAt` (1 s interval), one-time pickup code display (passed via params; falls back to `pickupCodeLast4`), cancel action. |
 | `/report/[inventoryId]` | Choose shelf status and verification type; `Authorized student` requires a photo (`expo-image-picker`, stays on device — only the flag is sent); reads GPS (`expo-location`, high accuracy) for the geofence check. |

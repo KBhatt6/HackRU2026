@@ -1,7 +1,7 @@
 import { useLocalSearchParams } from 'expo-router';
 import { useEffect, useState } from 'react';
 import * as Location from 'expo-location';
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvailabilityBadge, Card, ErrorState, LoadingState, SectionTitle } from '@/components/ui';
 import { Screen } from '@/components/screen';
@@ -52,7 +52,6 @@ export default function LocationScreen() {
       const route = body.routes?.[0];
       if (!route) throw new Error('No walking route was found.');
       setRouteLabel(`${Math.max(1, Math.round(route.duration / 60))} min walk · ${(route.distance / 1609.34).toFixed(1)} mi`);
-      await Linking.openURL(`https://www.mapbox.com/directions/?origin=${origin}&destination=${destination}`);
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Could not get directions.');
     }
@@ -95,7 +94,7 @@ export default function LocationScreen() {
         <Text style={styles.description}>{location.siteDescription}</Text>
         {!location.verified ? <Text style={styles.unverified}>Location details need Rutgers confirmation.</Text> : null}
         <Pressable style={styles.directionsButton} onPress={() => void getDirections()}>
-          <Text style={styles.directionsText}>Get walking directions</Text>
+          <Text style={styles.directionsText}>{routeLabel ? 'Refresh directions' : 'Get walking directions'}</Text>
         </Pressable>
         {routeLabel ? <Text style={styles.routeLabel}>{routeLabel}</Text> : null}
       </View>
@@ -153,7 +152,7 @@ const styles = StyleSheet.create({
   note: { color: colors.inkMuted, fontSize: 13, lineHeight: 20 },
   proposedBox: { backgroundColor: colors.lowSoft, borderRadius: radius.sm, padding: 12, gap: 3, marginTop: spacing.sm },
   proposedTitle: { color: colors.low, fontWeight: '900' },
-  proposedText: { color: '#704817', fontSize: 13, lineHeight: 19 },
+  proposedText: { color: colors.low, fontSize: 13, lineHeight: 19 },
   hoursRow: { flexDirection: 'row', justifyContent: 'space-between', gap: spacing.md, paddingVertical: 5, borderBottomWidth: 1, borderBottomColor: colors.surfaceMuted },
   day: { color: colors.ink, fontWeight: '700' },
   time: { color: colors.inkMuted },

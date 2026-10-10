@@ -100,7 +100,7 @@ const styles = StyleSheet.create({
   body: { color: colors.inkMuted, fontSize: 15, lineHeight: 23 },
   cautionCard: { backgroundColor: colors.lowSoft, borderColor: '#E8C989' },
   cautionTitle: { color: colors.low, fontWeight: '900', fontSize: 16 },
-  cautionText: { color: '#704817', lineHeight: 21 },
+  cautionText: { color: colors.low, lineHeight: 21 },
   locationCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md },
   locationCopy: { flex: 1, gap: 2 },
   locationName: { color: colors.ink, fontWeight: '900', fontSize: 16 },

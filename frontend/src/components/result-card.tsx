@@ -45,6 +45,12 @@ export function ResultCard({ result, rank }: { result: SearchResult; rank: numbe
       <Text style={styles.payment}>{result.paymentOptions || 'Payment details unavailable'}</Text>
 
       <View style={styles.actions}>
+        <Pressable
+          style={styles.directionsButton}
+          onPress={() => router.push(`/location/${result.locationId}`)}
+        >
+          <Text style={styles.directionsText}>Get directions</Text>
+        </Pressable>
         <View style={styles.flex}>
           <SecondaryButton
             label="Report stock"
@@ -91,4 +97,6 @@ const styles = StyleSheet.create({
   muted: { color: colors.inkMuted, fontSize: 13 },
   payment: { color: colors.inkMuted, fontSize: 12, lineHeight: 18 },
   actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs },
+  directionsButton: { backgroundColor: '#147BFF', borderRadius: radius.sm, minHeight: 44, justifyContent: 'center', paddingHorizontal: 12 },
+  directionsText: { color: colors.white, fontWeight: '700', fontSize: 13 },
 });
