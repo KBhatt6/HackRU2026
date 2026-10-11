@@ -4,7 +4,7 @@ import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AvailabilityBadge, Card, ErrorState, LoadingState, SectionTitle } from '@/components/ui';
 import { Screen } from '@/components/screen';
-import { colors, fonts, radius, spacing } from '@/constants/theme';
+import { colors, radius, spacing } from '@/constants/theme';
 import { directionsAddress } from '@/constants/config';
 import { getLocation } from '@/services/api';
 import type { Location as LocationRecord } from '@/types/api';
@@ -118,11 +118,11 @@ export default function LocationScreen() {
 
 const styles = StyleSheet.create({
   hero: { paddingVertical: spacing.md, gap: spacing.xs },
-  zone: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  title: { fontFamily: fonts.heading, color: colors.ink, fontSize: 32, lineHeight: 38, fontWeight: '900' },
-  description: { color: colors.inkMuted, fontSize: 15, lineHeight: 22 },
+  zone: { color: '#FF7A8E', fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
+  title: { color: colors.white, fontSize: 32, lineHeight: 38, fontWeight: '900' },
+  description: { color: '#D7D2CD', fontSize: 15, lineHeight: 22 },
   unverified: { color: colors.danger, fontWeight: '800', marginTop: spacing.sm },
-  sectionHeading: { fontFamily: fonts.heading, color: colors.ink, fontSize: 20, lineHeight: 26, fontWeight: '800' },
+  sectionHeading: { color: colors.white, fontSize: 20, lineHeight: 26, fontWeight: '800' },
   directionsButton: { alignSelf: 'flex-start', backgroundColor: colors.primary, paddingHorizontal: 14, paddingVertical: 10, borderRadius: radius.sm, marginTop: spacing.sm },
   directionsText: { color: colors.white, fontWeight: '700' },
   routeLabel: { color: colors.primaryDark, fontWeight: '700' },
