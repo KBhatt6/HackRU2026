@@ -7,7 +7,7 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import { Card, PrimaryButton, SectionTitle } from '@/components/ui';
 import { Screen } from '@/components/screen';
 import { DEMO_USER_TOKEN } from '@/constants/config';
-import { colors, radius, spacing } from '@/constants/theme';
+import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { submitReport } from '@/services/api';
 
 const STATUSES = ['Available', 'Low stock', 'Out of stock', 'Temporarily unavailable'];
@@ -118,9 +118,9 @@ export default function ReportScreen() {
 
 const styles = StyleSheet.create({
   hero: { paddingVertical: spacing.md, gap: spacing.xs },
-  eyebrow: { color: '#FF7A8E', fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  title: { color: colors.white, fontSize: 30, lineHeight: 36, fontWeight: '900' },
-  subtitle: { color: '#D7D2CD', fontSize: 15, lineHeight: 22 },
+  eyebrow: { color: colors.primary, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
+  title: { fontFamily: fonts.heading, color: colors.ink, fontSize: 30, lineHeight: 36, fontWeight: '900' },
+  subtitle: { color: colors.inkMuted, fontSize: 15, lineHeight: 22 },
   options: { gap: spacing.sm },
   option: { color: colors.ink, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: 14, fontWeight: '700', overflow: 'hidden' },
   optionActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft, color: colors.primaryDark },
@@ -129,6 +129,6 @@ const styles = StyleSheet.create({
   privacyCard: { backgroundColor: colors.surfaceMuted },
   privacyTitle: { color: colors.ink, fontWeight: '900' },
   privacyText: { color: colors.inkMuted, lineHeight: 21 },
-  error: { color: '#FF7A8E', fontWeight: '700', lineHeight: 20 },
+  error: { color: colors.danger, fontWeight: '700', lineHeight: 20 },
   success: { color: colors.available, backgroundColor: colors.availableSoft, padding: 14, borderRadius: radius.md, fontWeight: '800', lineHeight: 20 },
 });

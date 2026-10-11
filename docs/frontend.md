@@ -2,8 +2,14 @@
 
 Expo SDK 57, React 19.2, React Native 0.86, TypeScript ~6.0, Expo Router with
 typed routes and the React Compiler enabled (`experiments` in `app.json`). The
-shared theme uses a dark interface with black backgrounds, charcoal surfaces,
-light text, muted borders, and light-red accents.
+shared theme is a light **medicinal / apothecary** palette: parchment-beige
+background (`#F3ECDD`), cream cards (`#FBF7EE`), deep herbal-green text
+(`#1E3B2F`), apothecary-green buttons and accents (`#2F6B4F`), and darkened
+status colors (green / amber / brick red) that stay readable on beige. Large
+titles and section headings use a built-in serif (`fonts.heading`: Georgia on
+iOS/web, the system serif on Android); body text uses the system font.
+`app.json` sets `userInterfaceStyle: "light"` and the status bar uses dark
+icons.
 
 Run `./run.sh` from the repository root for the combined setup, or run
 `cd frontend && npm install && npx expo start` separately, then scan the QR code with
@@ -38,7 +44,7 @@ src/
 │   └── result-card.tsx     # ranked search result; "BEST MATCH" for rank 0
 ├── constants/
 │   ├── config.ts       # API_BASE_URL, DEMO_USER_TOKEN, CAMPUS_ZONES, CATEGORIES, PROTOTYPE_DISCLOSURE
-│   └── theme.ts        # colors, spacing, radius tokens (Rutgers-ish green palette)
+│   └── theme.ts        # colors (medicinal beige/green palette), fonts, spacing, radius tokens
 ├── services/api.ts     # all fetch calls, one apiRequest<T> wrapper
 └── types/api.ts        # TypeScript mirrors of the API payloads
 ```
@@ -88,8 +94,9 @@ be submitted without location.
 
 ## Conventions
 
-- Design tokens only — import `colors`, `spacing`, `radius` from
-  `constants/theme.ts`; do not hard-code hex values in screens.
+- Design tokens only — import `colors`, `fonts`, `spacing`, `radius` from
+  `constants/theme.ts`; do not hard-code hex values in screens. White text is
+  only for labels on filled green/red buttons.
 - Shared layout via `<Screen>` (or the SafeAreaView + ScrollView pattern used
   on home); shared primitives from `components/ui.tsx`.
 - Navigation with `router.push` / `router.replace` from `expo-router`; dynamic
