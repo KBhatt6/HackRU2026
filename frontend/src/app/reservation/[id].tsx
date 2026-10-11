@@ -4,6 +4,7 @@ import { StyleSheet, Text, View } from 'react-native';
 
 import { Card, ErrorState, LoadingState, PrimaryButton, SecondaryButton, SectionTitle } from '@/components/ui';
 import { Screen } from '@/components/screen';
+import { removeCartReservation } from '@/constants/cart';
 import { DEMO_USER_TOKEN } from '@/constants/config';
 import { colors, spacing } from '@/constants/theme';
 import { cancelReservation, getReservation } from '@/services/api';
@@ -46,7 +47,8 @@ export default function ReservationScreen() {
     if (!id) return;
     try {
       await cancelReservation(id, DEMO_USER_TOKEN);
-      await load();
+      removeCartReservation(id);
+      router.replace('/cart');
     } catch (requestError) {
       setError(requestError instanceof Error ? requestError.message : 'Could not cancel reservation.');
     }
