@@ -5,6 +5,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Card, PrimaryButton, SectionTitle } from '@/components/ui';
 import { Screen } from '@/components/screen';
 import { DEMO_USER_TOKEN } from '@/constants/config';
+import { addCartReservation } from '@/constants/cart';
 import { colors, radius, spacing } from '@/constants/theme';
 import { createReservation } from '@/services/api';
 
@@ -32,6 +33,13 @@ export default function ReserveScreen() {
         reservedByToken: DEMO_USER_TOKEN,
         pickupMethod,
         paymentMethod,
+      });
+      addCartReservation({
+        reservationId: reservation.reservationId,
+        productName: reservation.productName || product || 'Health item',
+        locationName: reservation.locationName || location || 'Rutgers retail location',
+        expiresAt: reservation.expiresAt,
+        pickupCode: reservation.pickupCode,
       });
       router.replace(
         `/reservation/${reservation.reservationId}?pickupCode=${encodeURIComponent(reservation.pickupCode || '')}`,

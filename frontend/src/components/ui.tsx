@@ -90,10 +90,23 @@ export function AvailabilityBadge({ status }: { status: AvailabilityStatus }) {
 
 export function ConfidenceBadge({ confidence }: { confidence: string }) {
   const stale = confidence === 'Stale report';
+  const staffVerified = confidence === 'Staff verified';
+  const studentVerified = confidence === 'Verified student report';
+  const unverified = confidence === 'Unverified Data';
+  const label = unverified ? 'Unverified Data' : confidence;
+  const palette = staffVerified
+    ? { background: colors.availableSoft, text: colors.available }
+    : studentVerified
+      ? { background: colors.lowSoft, text: colors.low }
+      : unverified
+        ? { background: colors.dangerSoft, text: colors.danger }
+        : stale
+          ? { background: colors.staleSoft, text: colors.stale }
+          : { background: colors.primarySoft, text: colors.primaryDark };
   return (
-    <View style={[styles.badge, { backgroundColor: stale ? colors.staleSoft : colors.primarySoft }]}>
-      <Text style={[styles.badgeText, { color: stale ? colors.stale : colors.primaryDark }]}>
-        {confidence}
+    <View style={[styles.badge, { backgroundColor: palette.background }]}> 
+      <Text style={[styles.badgeText, { color: palette.text }]}> 
+        {label}
       </Text>
     </View>
   );

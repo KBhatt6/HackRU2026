@@ -64,4 +64,4 @@ launches both services. It requires Python 3.9+, Node.js/npm, and `curl`.
 2. `curl "http://localhost:5000/api/search?query=Advil&campus_zone=Livingston&at=2026-10-13T16:00:00-04:00"`
 3. `curl -H "X-Demo-Role: staff" "http://localhost:5000/api/admin/summary?at=2026-10-13T15:00:00-04:00"`
 4. In the app: search → reserve → watch countdown → cancel; report stock with
-   and without photo; check `/help` contacts dial correctly.
+   verify the required authorized-photo flow requests both photo and location permissions and shows the location cue; check `/help` contacts dial correctly.

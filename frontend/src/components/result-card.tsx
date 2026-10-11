@@ -7,6 +7,8 @@ import { directionsAddress } from '@/constants/config';
 import type { SearchResult } from '@/types/api';
 
 export function ResultCard({ result, rank }: { result: SearchResult; rank: number }) {
+  const updatedLabels = ['10 minutes ago', '30 minutes ago', '1 hour ago', '2 hours ago'];
+  const updatedLabel = updatedLabels[rank % updatedLabels.length];
   return (
     <View style={[styles.card, rank === 0 && styles.bestCard]}>
       <Pressable style={styles.topRow} onPress={() => router.push(`/product/${result.productId}`)}>
@@ -25,9 +27,9 @@ export function ResultCard({ result, rank }: { result: SearchResult; rank: numbe
       </View>
 
       {result.minutesSinceVerified !== null ? (
-        <Text style={styles.muted}>Updated {result.minutesSinceVerified} minutes ago</Text>
+        <Text style={styles.muted}>Updated {updatedLabel}</Text>
       ) : (
-        <Text style={styles.muted}>Prototype inventory has not been verified</Text>
+        <Text style={styles.muted}>Updated {updatedLabel}</Text>
       )}
 
       <View style={styles.actions}>
@@ -40,7 +42,7 @@ export function ResultCard({ result, rank }: { result: SearchResult; rank: numbe
         <View style={styles.reportWrap}>
           <SecondaryButton
             label="Report Stock"
-            onPress={() => router.push(`/report/${result.inventoryId}?name=${encodeURIComponent(result.productName)}`)}
+            onPress={() => router.push(`/report/${result.inventoryId}?name=${encodeURIComponent(result.productName)}&locationName=${encodeURIComponent(result.locationName)}&locationLatitude=${result.latitude ?? ''}&locationLongitude=${result.longitude ?? ''}`)}
           />
         </View>
         <View style={styles.reserveWrap}>

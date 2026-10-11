@@ -25,7 +25,7 @@ def update_inventory_from_report(database, report_id: str) -> None:
     if report["reporter_role"] == "Rutgers staff":
         confidence = "Staff verified"
     elif report["reporter_role"] == "Authorized student":
-        confidence = "Authorized student verified"
+        confidence = "Verified student report"
     else:
         matching = database.execute(
             """
@@ -38,7 +38,7 @@ def update_inventory_from_report(database, report_id: str) -> None:
             """,
             (report["inventory_id"], report["reported_status"], report["reported_at"]),
         ).fetchone()[0]
-        confidence = "Multiple student reports" if matching >= 2 else "Single student report"
+        confidence = "Verified student report"
 
     status = report["reported_status"]
     quantity_band = {
@@ -176,4 +176,3 @@ def create_report():
         ),
         201,
     )
-

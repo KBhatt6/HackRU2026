@@ -27,10 +27,10 @@ Reported confidence degrades when it ages past its validity window:
 | Reported confidence | Validity window |
 | --- | --- |
 | `Staff verified` | `staff_report_validity_min` (default 240 min) |
-| `Authorized student verified`, `Multiple student reports`, `Single student report` | `student_report_validity_min` (default 60 min) |
+| `Verified student report` | `student_report_validity_min` (default 60 min) |
 
 Past the window → `Stale report`. Other rows keep their label
-(`Unverified prototype data`, `n/a`).
+(`Unverified Data`, `n/a`).
 
 Score inputs:
 
@@ -38,10 +38,15 @@ Score inputs:
 Available 1.0 · Low stock 0.65 · Unknown 0.25
 Out of stock / Temporarily unavailable / Not stocked in proposal 0.0
 
-Staff verified 1.0 · Authorized student verified 0.85 · Multiple student
-reports 0.75 · Single student report 0.55 · Stale report 0.20 ·
-Unverified prototype data 0.10 · n/a 0.0
+Staff verified 1.0 · Verified student report 0.75 · Stale report 0.20 ·
+Unverified Data 0.10 · n/a 0.0
 ```
+
+After open-state and usable-availability filtering, the search sort applies an
+additional trust guard before comparing scores: Unverified Data stays
+behind verified rows. This prevents a very recent unverified row from outranking
+a slightly older staff-verified row solely because of distance or other score
+inputs. Staff versus verified-student results remain score-based.
 
 ### Open state (`open_state`)
 

@@ -13,18 +13,43 @@ import { submitReport } from '@/services/api';
 const STATUSES = ['Available', 'Low stock', 'Out of stock', 'Temporarily unavailable'];
 
 export default function ReportScreen() {
-  const { inventoryId, name } = useLocalSearchParams<{ inventoryId: string; name?: string }>();
+  const { inventoryId, name, locationName, locationLatitude, locationLongitude } = useLocalSearchParams<{ inventoryId: string; name?: string; locationName?: string; locationLatitude?: string; locationLongitude?: string }>();
   const [status, setStatus] = useState(STATUSES[0]);
-  const [role, setRole] = useState<'Student (basic)' | 'Authorized student'>('Student (basic)');
+  const role = 'Authorized student' as const;
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
+  const [locationStatus, setLocationStatus] = useState<'not-checked' | 'checking' | 'ready' | 'outside' | 'denied'>('not-checked');
 
   async function choosePhoto() {
+    setError(null);
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       setError('Photo permission was not granted.');
+      return;
+    }
+    setLocationStatus('checking');
+    const locationPermission = await Location.requestForegroundPermissionsAsync();
+    if (!locationPermission.granted) {
+      setLocationStatus('denied');
+      setError('Location permission is required to verify that you are at the retail location.');
+      return;
+    }
+    try {
+      const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.High });
+      const targetLatitude = Number(locationLatitude);
+      const targetLongitude = Number(locationLongitude);
+      if (!Number.isFinite(targetLatitude) || !Number.isFinite(targetLongitude)) {
+        setLocationStatus('denied');
+        setError(`${locationName || 'This location'} does not have a verified map coordinate yet.`);
+        return;
+      }
+      const distanceMeters = haversineMeters(position.coords.latitude, position.coords.longitude, targetLatitude, targetLongitude);
+      setLocationStatus(distanceMeters <= 150 ? 'ready' : 'outside');
+    } catch {
+      setLocationStatus('denied');
+      setError('Could not check your location. Try again near the retail location.');
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -85,14 +110,9 @@ export default function ReportScreen() {
       </Card>
 
       <Card>
-        <SectionTitle>Verification type</SectionTitle>
-        <Text onPress={() => setRole('Student (basic)')} style={[styles.option, role === 'Student (basic)' && styles.optionActive]}>
-          Basic student report
-        </Text>
-        <Text onPress={() => setRole('Authorized student')} style={[styles.option, role === 'Authorized student' && styles.optionActive]}>
-          Authorized student: photo + location
-        </Text>
-        <Text style={styles.note}>Authorization is simulated in the hackathon build. A real version would require Rutgers SSO and role approval.</Text>
+        <SectionTitle>Student verification</SectionTitle>
+        <Text style={[styles.option, styles.optionActive]}>Authorized student: photo + location</Text>
+        <Text style={styles.note}>This prototype requires a shelf photo and a location check for every stock report. Authorization is simulated in this hackathon build; a real version would use Rutgers SSO and role approval.</Text>
       </Card>
 
       {role === 'Authorized student' ? (
@@ -100,6 +120,12 @@ export default function ReportScreen() {
           <SectionTitle>Shelf photo</SectionTitle>
           {photoUri ? <Image source={{ uri: photoUri }} style={styles.preview} /> : null}
           <PrimaryButton label={photoUri ? 'Choose a different photo' : 'Choose photo'} onPress={() => void choosePhoto()} />
+          <View style={[styles.locationCue, locationStatus === 'ready' && styles.locationCueReady, locationStatus === 'denied' && styles.locationCueDenied]}>
+            <Text style={styles.locationCueIcon}>{locationStatus === 'checking' ? '◌' : locationStatus === 'ready' ? '✓' : locationStatus === 'outside' ? '!' : '⌖'}</Text>
+            <Text style={styles.locationCueText}>
+              {locationStatus === 'checking' ? 'Checking your location against the store…' : locationStatus === 'ready' ? `You appear to be at ${locationName || 'this location'}` : locationStatus === 'outside' ? `You are not near ${locationName || 'this location'} — reporting will be rejected` : locationStatus === 'denied' ? 'Location check needed before submitting' : 'Location check will run when you choose a photo'}
+            </Text>
+          </View>
           <Text style={styles.note}>For this privacy-safe demo, the image remains on the phone; only the attached/not-attached flag reaches the backend.</Text>
         </Card>
       ) : null}
@@ -126,9 +152,24 @@ const styles = StyleSheet.create({
   optionActive: { borderColor: colors.primary, backgroundColor: colors.primarySoft, color: colors.primaryDark },
   note: { color: colors.inkMuted, fontSize: 12, lineHeight: 18 },
   preview: { width: '100%', height: 180, borderRadius: radius.md, backgroundColor: colors.surfaceMuted },
+  locationCue: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, backgroundColor: colors.surfaceMuted, borderWidth: 1, borderColor: colors.border, borderRadius: radius.sm, padding: spacing.sm },
+  locationCueReady: { backgroundColor: colors.availableSoft, borderColor: colors.available },
+  locationCueDenied: { backgroundColor: colors.dangerSoft, borderColor: colors.primary },
+  locationCueIcon: { color: colors.ink, fontSize: 20, fontWeight: '900' },
+  locationCueText: { flex: 1, color: colors.ink, fontWeight: '700', lineHeight: 19 },
   privacyCard: { backgroundColor: colors.surfaceMuted },
   privacyTitle: { color: colors.ink, fontWeight: '900' },
   privacyText: { color: colors.inkMuted, lineHeight: 21 },
   error: { color: '#FF7A8E', fontWeight: '700', lineHeight: 20 },
   success: { color: colors.available, backgroundColor: colors.availableSoft, padding: 14, borderRadius: radius.md, fontWeight: '800', lineHeight: 20 },
 });
+
+function haversineMeters(latitudeOne: number, longitudeOne: number, latitudeTwo: number, longitudeTwo: number) {
+  const earthRadiusMeters = 6_371_008.8;
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const latitudeDelta = toRadians(latitudeTwo - latitudeOne);
+  const longitudeDelta = toRadians(longitudeTwo - longitudeOne);
+  const a = Math.sin(latitudeDelta / 2) ** 2
+    + Math.cos(toRadians(latitudeOne)) * Math.cos(toRadians(latitudeTwo)) * Math.sin(longitudeDelta / 2) ** 2;
+  return earthRadiusMeters * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}

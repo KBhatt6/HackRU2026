@@ -1,9 +1,10 @@
 import * as Location from 'expo-location';
 import { router } from 'expo-router';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   ActivityIndicator,
   Keyboard,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -15,7 +16,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { ResultCard } from '@/components/result-card';
 import { ErrorState } from '@/components/ui';
-import { CAMPUS_ZONES, CATEGORIES } from '@/constants/config';
+import { CAMPUS_ZONES, CATEGORIES, directionsAddress, nearestCampusZone } from '@/constants/config';
+import { getCartReservations, subscribeToCart } from '@/constants/cart';
 import { colors, fonts, radius, spacing } from '@/constants/theme';
 import { searchInventory } from '@/services/api';
 import type { SearchResult } from '@/types/api';
@@ -25,10 +27,14 @@ export default function HomeScreen() {
   const [query, setQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
+  const [otherCampusResults, setOtherCampusResults] = useState<SearchResult[]>([]);
   const [searched, setSearched] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [coordinates, setCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [cartCount, setCartCount] = useState(getCartReservations().length);
+
+  useEffect(() => subscribeToCart(() => setCartCount(getCartReservations().length)), []);
 
   async function addCurrentLocation() {
     setError(null);
@@ -38,7 +44,13 @@ export default function HomeScreen() {
       return;
     }
     const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
-    setCoordinates({ latitude: position.coords.latitude, longitude: position.coords.longitude });
+    const nextCoordinates = { latitude: position.coords.latitude, longitude: position.coords.longitude };
+    setCoordinates(nextCoordinates);
+    const nearestZone = nearestCampusZone(nextCoordinates.latitude, nextCoordinates.longitude);
+    setCampusZone(nearestZone);
+    if (query.trim() || activeCategory) {
+      void performSearch(activeCategory, nearestZone);
+    }
   }
 
   async function performSearch(category = activeCategory, zone = campusZone) {
@@ -50,6 +62,7 @@ export default function HomeScreen() {
     setLoading(true);
     setError(null);
     setSearched(true);
+    setOtherCampusResults([]);
     try {
       const response = await searchInventory({
         query: query.trim() || undefined,
@@ -59,6 +72,24 @@ export default function HomeScreen() {
         longitude: coordinates?.longitude,
       });
       setResults(response.results);
+      if (!response.results.some((result) => result.isOpen === true)) {
+        const otherZones = CAMPUS_ZONES.filter((candidate) => candidate !== zone);
+        const fallbackResponses = await Promise.all(otherZones.map((candidate) => searchInventory({
+          query: query.trim() || undefined,
+          category: query.trim() ? undefined : category || undefined,
+          campusZone: candidate,
+          latitude: coordinates?.latitude,
+          longitude: coordinates?.longitude,
+        })));
+        const fallbackResults = fallbackResponses
+          .flatMap((fallbackResponse) => fallbackResponse.results)
+          .sort((left, right) => {
+            const openDifference = Number(right.isOpen === true) - Number(left.isOpen === true);
+            if (openDifference) return openDifference;
+            return (left.distanceKm ?? Number.POSITIVE_INFINITY) - (right.distanceKm ?? Number.POSITIVE_INFINITY);
+          });
+        setOtherCampusResults(fallbackResults.slice(0, 5));
+      }
     } catch (requestError) {
       setResults([]);
       setError(requestError instanceof Error ? requestError.message : 'Search failed.');
@@ -80,6 +111,9 @@ export default function HomeScreen() {
     }
   }
 
+  const openResults = results.filter((result) => result.isOpen === true);
+  const closedCount = results.length - openResults.length;
+
   return (
     <SafeAreaView style={styles.safe}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
@@ -89,6 +123,9 @@ export default function HomeScreen() {
           </View>
           <Pressable style={styles.helpButton} onPress={() => router.push('/help')}>
             <Text style={styles.helpButtonText}>Get help</Text>
+          </Pressable>
+          <Pressable style={styles.cartButton} onPress={() => router.push('/cart')}>
+            <Text style={styles.cartButtonText}>Cart{cartCount ? ` (${cartCount})` : ''}</Text>
           </Pressable>
         </View>
 
@@ -128,14 +165,18 @@ export default function HomeScreen() {
             <Pressable style={styles.searchButton} onPress={() => void performSearch(null)}>
               <Text style={styles.searchButtonText}>⌕</Text>
             </Pressable>
-            <Pressable style={styles.askButton} onPress={() => void performSearch(null)}><Text style={styles.askText}>Ask RU Relief</Text></Pressable>
           </View>
 
         </View>
 
-        <Pressable style={styles.locationButton} onPress={() => void addCurrentLocation()}>
-          <Text style={styles.locationButtonText}>{coordinates ? 'Location added' : 'Add location'}</Text>
-        </Pressable>
+        <View style={styles.locationActions}>
+          <Pressable style={styles.locationButton} onPress={() => void addCurrentLocation()}>
+            <Text style={styles.locationButtonText}>{coordinates ? 'Location added' : 'Add location'}</Text>
+          </Pressable>
+          <Pressable style={styles.askButton} onPress={() => void Linking.openURL('tel:8008905882')}>
+            <Text style={styles.askText}>Ask RSH Nurse</Text>
+          </Pressable>
+        </View>
 
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>Browse by category</Text>
@@ -155,8 +196,36 @@ export default function HomeScreen() {
         </View>
 
         <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.carousel}>
-          <View style={styles.featureCard}><Text style={styles.featureEyebrow}>NEAREST TO YOU</Text><Text style={styles.featureTitle}>{results[0]?.productName || 'Advil'}</Text><Text style={styles.featureText}>{results[0]?.locationName || 'Livingston Student Center'} · {results[0]?.travelMinutes ? `${results[0].travelMinutes} min walk` : '0.3 mi'} · in stock</Text><Pressable style={styles.reserveButton} onPress={() => results[0] ? router.push(`/reserve/${results[0].inventoryId}`) : void performSearch('Pain & fever')}><Text style={styles.reserveText}>Reserve</Text></Pressable></View>
-          <View style={styles.featureCard}><Text style={styles.featureEyebrow}>ON THE WAY</Text><Text style={styles.featureTitle}>Request delivery</Text><Text style={styles.featureText}>Campus pickup support · Avg. 15 min</Text><Text style={styles.comingSoon}>Coming soon</Text></View>
+          <View style={styles.featureCard}>
+            <Pressable onPress={() => results[0] ? router.push(`/product/${results[0].productId}`) : void performSearch('Pain & fever')}>
+            <Text style={styles.featureEyebrow}>NEAREST TO YOU</Text>
+            <Text style={styles.featureTitle}>{results[0]?.productName || 'Advil'}</Text>
+            <Text style={styles.featureText}>{results[0]?.locationName || 'Livingston Student Center'} · {results[0]?.travelMinutes ? `${results[0].travelMinutes} min walk` : '0.3 mi'} · in stock</Text>
+            </Pressable>
+            <View style={styles.featureActions}>
+              <Pressable
+                style={styles.directionsButton}
+                onPress={() => {
+                  if (!results[0]) {
+                    void performSearch('Pain & fever');
+                    return;
+                  }
+                  void Linking.openURL(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(directionsAddress(results[0].locationName, results[0].siteDescription))}`);
+                }}
+              >
+                <Text style={styles.directionsText}>Directions</Text>
+              </Pressable>
+              <Pressable style={styles.reserveButton} onPress={() => results[0] ? router.push(`/reserve/${results[0].inventoryId}`) : void performSearch('Pain & fever')}>
+                <Text style={styles.reserveText}>Reserve</Text>
+              </Pressable>
+            </View>
+          </View>
+          <Pressable style={styles.featureCard} onPress={() => router.push('/delivery')}>
+            <Text style={styles.featureEyebrow}>ON THE WAY</Text>
+            <Text style={styles.featureTitle}>Request delivery</Text>
+            <Text style={styles.featureText}>Choose your residence hall for a delivery destination.</Text>
+            <Text style={styles.comingSoon}>Set delivery location</Text>
+          </Pressable>
         </ScrollView>
 
         {error ? <ErrorState message={error} /> : null}
@@ -174,8 +243,13 @@ export default function HomeScreen() {
               <Text style={styles.sectionTitle}>Results</Text>
               <Text style={styles.resultCount}>{results.length} found</Text>
             </View>
-            {results.length ? (
-              results.map((result, index) => <ResultCard key={result.inventoryId} result={result} rank={index} />)
+            {openResults.length ? (
+              openResults.map((result, index) => <ResultCard key={result.inventoryId} result={result} rank={index} />)
+            ) : otherCampusResults.length ? (
+              <>
+                <Text style={styles.fallbackText}>Nothing open on {campusZone}. Here are the closest matches on other campuses.</Text>
+                {otherCampusResults.map((result, index) => <ResultCard key={result.inventoryId} result={result} rank={index} />)}
+              </>
             ) : !error ? (
               <View style={styles.empty}>
                 <Text style={styles.emptyTitle}>Nothing listed on this campus</Text>
@@ -183,6 +257,15 @@ export default function HomeScreen() {
                   Try another product or use Get help for Rutgers Student Health contacts.
                 </Text>
               </View>
+            ) : null}
+            {closedCount > 0 ? (
+              <Pressable
+                style={styles.closedBox}
+                onPress={() => router.push({ pathname: '/closed', params: { campusZone, query, category: activeCategory || '' } })}
+              >
+                <Text style={styles.closedBoxTitle}>{closedCount} {closedCount === 1 ? 'location is' : 'locations are'} closed</Text>
+                <Text style={styles.closedBoxText}>View closed locations</Text>
+              </Pressable>
             ) : null}
           </View>
         ) : null}
@@ -199,6 +282,8 @@ const styles = StyleSheet.create({
   title: { color: colors.white, fontFamily: fonts.body, fontSize: 34, lineHeight: 40, fontWeight: '800', letterSpacing: -0.8 },
   helpButton: { backgroundColor: colors.accentSoft, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.pill },
   helpButtonText: { color: colors.primaryDark, fontWeight: '700' },
+  cartButton: { backgroundColor: colors.surface, paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.pill },
+  cartButtonText: { color: colors.ink, fontWeight: '800' },
   welcomeCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: colors.surface, borderRadius: 24, padding: spacing.md, gap: spacing.sm, shadowColor: '#000', shadowOpacity: 0.16, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 4 },
   welcomeMark: { width: 42, height: 42, borderRadius: 21, backgroundColor: colors.primary, alignItems: 'center', justifyContent: 'center' },
   welcomeMarkText: { color: colors.white, fontWeight: '900' }, welcomeCopy: { flex: 1 }, welcomeTitle: { color: colors.ink, fontSize: 17, fontWeight: '800' }, welcomeText: { color: colors.inkMuted, marginTop: 2 },
@@ -216,6 +301,7 @@ const styles = StyleSheet.create({
   askButton: { minHeight: 42, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 999, backgroundColor: colors.primarySoft }, askText: { color: colors.primaryDark, fontWeight: '800', fontSize: 12 },
   locationButton: { alignSelf: 'flex-start', backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 11, borderRadius: radius.pill },
   locationButtonText: { color: colors.white, fontWeight: '800', fontSize: 13 },
+  locationActions: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm },
   section: { gap: spacing.md },
   sectionTitle: { color: colors.white, fontSize: 21, fontWeight: '900' },
   categoryGrid: { flexDirection: 'row', gap: spacing.sm },
@@ -230,5 +316,9 @@ const styles = StyleSheet.create({
   empty: { backgroundColor: colors.surface, padding: spacing.lg, borderRadius: radius.md, gap: spacing.sm, borderWidth: 1, borderColor: colors.border },
   emptyTitle: { color: colors.ink, fontWeight: '900', fontSize: 17 },
   emptyText: { color: colors.inkMuted, lineHeight: 21 },
-  carousel: { gap: spacing.md }, featureCard: { width: 292, minHeight: 178, padding: spacing.lg, borderRadius: 24, backgroundColor: colors.surface, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 4 }, featureEyebrow: { color: colors.primaryDark, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 }, featureTitle: { color: colors.ink, fontSize: 24, fontWeight: '900', marginTop: spacing.sm }, featureText: { color: colors.inkMuted, lineHeight: 20, marginTop: spacing.xs }, reserveButton: { alignSelf: 'flex-start', backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 9, borderRadius: radius.pill, marginTop: spacing.md }, reserveText: { color: colors.white, fontWeight: '800' }, comingSoon: { color: '#806900', fontWeight: '800', marginTop: spacing.md },
+  fallbackText: { color: colors.white, lineHeight: 21, marginBottom: spacing.sm },
+  closedBox: { backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md, gap: spacing.xs },
+  closedBoxTitle: { color: colors.ink, fontSize: 16, fontWeight: '800' },
+  closedBoxText: { color: colors.primaryDark, fontWeight: '700' },
+  carousel: { gap: spacing.md }, featureCard: { width: 292, minHeight: 178, padding: spacing.lg, borderRadius: 24, backgroundColor: colors.surface, shadowColor: '#000', shadowOpacity: 0.3, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 4 }, featureEyebrow: { color: colors.primaryDark, fontSize: 11, fontWeight: '900', letterSpacing: 1.2 }, featureTitle: { color: colors.ink, fontSize: 24, fontWeight: '900', marginTop: spacing.sm }, featureText: { color: colors.inkMuted, lineHeight: 20, marginTop: spacing.xs }, featureActions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.md }, directionsButton: { backgroundColor: '#147BFF', paddingHorizontal: 12, paddingVertical: 9, borderRadius: radius.sm, justifyContent: 'center' }, directionsText: { color: colors.white, fontWeight: '800' }, reserveButton: { backgroundColor: colors.primary, paddingHorizontal: 16, paddingVertical: 9, borderRadius: radius.sm, justifyContent: 'center' }, reserveText: { color: colors.white, fontWeight: '800' }, comingSoon: { color: '#806900', fontWeight: '800', marginTop: spacing.md },
 });

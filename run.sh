@@ -8,6 +8,15 @@ PYTHON_BIN="${PYTHON_BIN:-python3}"
 BACKEND_PORT="${BACKEND_PORT:-6000}"
 EXPO_API_URL="${EXPO_PUBLIC_API_URL:-}"
 
+if [[ -z "${EXPO_API_URL}" ]]; then
+  LAN_IP="$(ipconfig getifaddr en0 2>/dev/null || ipconfig getifaddr en1 2>/dev/null || true)"
+  if [[ -n "${LAN_IP}" ]]; then
+    EXPO_API_URL="http://${LAN_IP}:${BACKEND_PORT}"
+  else
+    EXPO_API_URL="http://127.0.0.1:${BACKEND_PORT}"
+  fi
+fi
+
 command -v "${PYTHON_BIN}" >/dev/null 2>&1 || { echo "error: ${PYTHON_BIN} was not found" >&2; exit 1; }
 "${PYTHON_BIN}" -c 'import sys; raise SystemExit(0 if sys.version_info >= (3, 9) else 1)' || {
   echo "error: RU Relief requires Python 3.9 or newer (found $(${PYTHON_BIN} --version 2>&1))" >&2

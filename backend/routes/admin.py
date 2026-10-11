@@ -64,7 +64,7 @@ def admin_summary():
             (reported_confidence = 'Staff verified' AND
              (julianday(?) - julianday(last_verified)) * 1440 > ?)
             OR
-            (reported_confidence IN ('Authorized student verified', 'Multiple student reports', 'Single student report') AND
+            (reported_confidence = 'Verified student report' AND
              (julianday(?) - julianday(last_verified)) * 1440 > ?)
           )
         """,

@@ -19,13 +19,16 @@ AVAILABILITY_SCORES = {
 
 CONFIDENCE_SCORES = {
     "Staff verified": 1.0,
-    "Authorized student verified": 0.85,
-    "Multiple student reports": 0.75,
-    "Single student report": 0.55,
+    "Verified student report": 0.75,
     "Stale report": 0.20,
-    "Unverified prototype data": 0.10,
+    "Unverified Data": 0.10,
     "n/a": 0.0,
 }
+
+
+def confidence_sort_priority(confidence: str) -> int:
+    """Keep unverified prototype rows behind verified rows at the same tier."""
+    return 0 if confidence == "Unverified Data" else 1
 
 
 def parse_datetime(value: Optional[Union[str, datetime]]) -> Optional[datetime]:
@@ -51,9 +54,7 @@ def confidence_validity_minutes(reported_confidence: str, settings: Mapping[str,
     if reported_confidence == "Staff verified":
         return int(settings.get("staff_report_validity_min", 240))
     if reported_confidence in {
-        "Authorized student verified",
-        "Multiple student reports",
-        "Single student report",
+        "Verified student report",
     }:
         return int(settings.get("student_report_validity_min", 60))
     return None

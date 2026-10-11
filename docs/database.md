@@ -66,7 +66,7 @@ heart of the app:
 | `proposed_to_stock` | Whether the program would stock it here; search hides `0` unless `include_unstocked=true`. |
 | `availability_status` | CHECK: `Available`, `Low stock`, `Out of stock`, `Unknown`, `Temporarily unavailable`, `Not stocked in proposal`. |
 | `quantity_band` | Display label (`Good supply`, `Few left`, `None`, …). |
-| `reported_confidence` | See [search-ranking.md](search-ranking.md): `Staff verified`, `Authorized student verified`, `Multiple student reports`, `Single student report`, `Stale report`, `Unverified prototype data`, `n/a`. |
+| `reported_confidence` | See [search-ranking.md](search-ranking.md): `Staff verified`, `Verified student report`, `Stale report`, `Unverified Data`, `n/a`. |
 | `last_verified` | ISO-8601 timestamp; drives staleness. |
 | `allocatable_units_internal` | Hold capacity: 2 (Available) / 1 (Low stock) / 0. Recomputed on every report application and admin PATCH. |
 | `reservation_minutes` | Hold duration, default 75. |

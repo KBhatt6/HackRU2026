@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
-from backend.ranking import calculate_score, effective_confidence, open_state
+from backend.ranking import calculate_score, confidence_sort_priority, effective_confidence, open_state
 
 
 EASTERN = ZoneInfo("America/New_York")
@@ -12,7 +12,7 @@ EASTERN = ZoneInfo("America/New_York")
 def test_student_report_becomes_stale_after_sixty_minutes():
     now = datetime(2026, 10, 13, 15, 0, tzinfo=EASTERN)
     confidence, age = effective_confidence(
-        "Single student report",
+        "Verified student report",
         "2026-10-13T13:25:00-04:00",
         now,
         {"student_report_validity_min": 60},
@@ -53,3 +53,7 @@ def test_stale_penalty_lowers_score():
     stale = calculate_score("Available", "Stale report", True, 5, settings)
     assert fresh > stale
 
+
+def test_unverified_data_never_wins_confidence_tiebreaker():
+    assert confidence_sort_priority("Staff verified") > confidence_sort_priority("Unverified Data")
+    assert confidence_sort_priority("Verified student report") > confidence_sort_priority("Unverified Data")

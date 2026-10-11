@@ -23,6 +23,8 @@ export default function RootLayout() {
         <Stack.Screen name="reservation/[id]" options={{ title: 'Your reservation' }} />
         <Stack.Screen name="report/[inventoryId]" options={{ title: 'Report availability' }} />
         <Stack.Screen name="help" options={{ title: 'Get real help' }} />
+        <Stack.Screen name="cart" options={{ title: 'Cart' }} />
+        <Stack.Screen name="closed" options={{ title: 'Closed locations' }} />
       </Stack>
     </>
   );

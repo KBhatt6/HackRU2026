@@ -11,16 +11,24 @@ type SearchInput = {
 
 async function apiRequest<T>(path: string, options?: RequestInit): Promise<T> {
   let response: Response;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 8000);
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       ...options,
+      signal: controller.signal,
       headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new Error(`The RU Relief API at ${API_BASE_URL} did not respond within 8 seconds. Check that the backend is running and your phone is on the same Wi-Fi network.`);
+    }
     throw new Error(
       `Could not connect to the RU Relief API at ${API_BASE_URL}. ` +
-        'Make sure the backend is running and your phone is on the same Wi-Fi network.',
+      'Make sure the backend is running and your phone is on the same Wi-Fi network.',
     );
+  } finally {
+    clearTimeout(timeout);
   }
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {

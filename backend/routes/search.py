@@ -6,6 +6,7 @@ from ..database import get_db
 from ..models import SearchResult
 from ..ranking import (
     calculate_score,
+    confidence_sort_priority,
     effective_confidence,
     open_state,
     reservation_state,
@@ -130,6 +131,7 @@ def search_inventory():
         key=lambda item: (
             item.isOpen is True,
             item.availability not in {"Out of stock", "Temporarily unavailable", "Not stocked in proposal"},
+            confidence_sort_priority(item.confidence),
             item.score,
         ),
         reverse=True,

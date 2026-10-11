@@ -65,28 +65,21 @@ export default function ProductScreen() {
         <Text style={styles.cautionText}>Follow the package label. RU Relief does not provide dosing or medical advice.</Text>
       </Card>
 
-      <Card>
-        <Text style={styles.label}>Proposed purchase limit</Text>
-        <Text style={styles.body}>{product.quantityLimit}</Text>
-        <Text style={styles.label}>Retail swipe status</Text>
-        <Text style={styles.body}>Pending Rutgers approval for health products</Text>
-      </Card>
-
       <Text style={styles.sectionHeading}>Proposed campus availability</Text>
-      {stockedLocations.map((location) => (
-        <Pressable
-          key={location.inventoryId}
-          onPress={() => router.push(`/location/${location.locationId}`)}
-          style={styles.locationCard}
-        >
-          <View style={styles.locationCopy}>
-            <Text style={styles.locationName}>{location.locationName}</Text>
-            <Text style={styles.locationZone}>{location.campusZone}</Text>
-            <Text style={styles.confidence}>{location.reportedConfidence}</Text>
-          </View>
-          <AvailabilityBadge status={location.availability} />
-        </Pressable>
-      ))}
+      <Text style={styles.limitLine}>Purchase limit - {product.quantityLimit}</Text>
+      {(['Busch', 'College Avenue', 'Livingston', 'Cook/Douglass'] as const).map((campus) => {
+        const campusLocations = stockedLocations.filter((location) => location.campusZone === campus);
+        if (!campusLocations.length) return null;
+        return <View key={campus} style={styles.campusGroup}>
+          <Text style={styles.campusHeading}>{campus === 'College Avenue' ? 'College Ave' : campus}</Text>
+          {campusLocations.map((location) => (
+            <Pressable key={location.inventoryId} onPress={() => router.push(`/location/${location.locationId}`)} style={styles.locationCard}>
+              <View style={styles.locationCopy}><Text style={styles.locationName}>{location.locationName}</Text><Text style={styles.locationZone}>{location.reportedConfidence}</Text></View>
+              <AvailabilityBadge status={location.availability} />
+            </Pressable>
+          ))}
+        </View>;
+      })}
     </Screen>
   );
 }
@@ -102,6 +95,9 @@ const styles = StyleSheet.create({
   cautionTitle: { color: colors.low, fontFamily: fonts.body, fontWeight: '900', fontSize: 18, letterSpacing: 2 },
   cautionText: { color: colors.low, fontFamily: fonts.body, lineHeight: 21 },
   sectionHeading: { color: colors.white, fontFamily: fonts.body, fontSize: 20, lineHeight: 26, fontWeight: '800' },
+  limitLine: { color: '#F4EBDD', fontFamily: fonts.body, fontSize: 13, lineHeight: 18, marginTop: -spacing.sm },
+  campusGroup: { gap: spacing.sm },
+  campusHeading: { color: colors.white, fontSize: 19, fontWeight: '900', marginTop: spacing.sm },
   locationCard: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, backgroundColor: colors.surface, borderWidth: 1, borderColor: colors.border, borderRadius: radius.md, padding: spacing.md },
   locationCopy: { flex: 1, gap: 2 },
   locationName: { color: colors.ink, fontWeight: '900', fontSize: 16 },
