@@ -54,7 +54,7 @@ export default function HelpScreen() {
       <Card style={styles.emergencyCard}>
         <Text style={styles.emergencyLabel}>MEDICAL EMERGENCY</Text>
         <Text style={styles.emergencyTitle}>Call 911 now</Text>
-        <Text style={styles.emergencyText}>RU Relief is not an emergency service and does not diagnose conditions.</Text>
+        <Text style={styles.emergencyText}>RU Sick is not an emergency service and does not diagnose conditions.</Text>
         <PrimaryButton label="Call 911" destructive onPress={() => void Linking.openURL('tel:911')} />
       </Card>
 

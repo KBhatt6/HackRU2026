@@ -119,7 +119,7 @@ export default function HomeScreen() {
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={styles.content}>
         <View style={styles.header}>
           <View style={styles.headerCopy}>
-            <Text style={styles.title}>RU Relief</Text>
+            <Text style={styles.title}>RU Sick</Text>
           </View>
           <Pressable style={styles.helpButton} onPress={() => router.push('/help')}>
             <Text style={styles.helpButtonText}>Get help</Text>

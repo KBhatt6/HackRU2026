@@ -62,7 +62,7 @@ export default function ProductScreen() {
       <Card style={styles.cautionCard}>
         <Text style={styles.cautionTitle}>WARNING</Text>
         <Text style={styles.cautionText}>{product.labelCaution}</Text>
-        <Text style={styles.cautionText}>Follow the package label. RU Relief does not provide dosing or medical advice.</Text>
+        <Text style={styles.cautionText}>Follow the package label. RU Sick does not provide dosing or medical advice.</Text>
       </Card>
 
       <Text style={styles.sectionHeading}>Proposed campus availability</Text>

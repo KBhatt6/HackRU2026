@@ -21,10 +21,10 @@ async function apiRequest<T>(path: string, options?: RequestInit): Promise<T> {
     });
   } catch (error) {
     if (error instanceof Error && error.name === 'AbortError') {
-      throw new Error(`The RU Relief API at ${API_BASE_URL} did not respond within 8 seconds. Check that the backend is running and your phone is on the same Wi-Fi network.`);
+      throw new Error(`The RU Sick API at ${API_BASE_URL} did not respond within 8 seconds. Check that the backend is running and your phone is on the same Wi-Fi network.`);
     }
     throw new Error(
-      `Could not connect to the RU Relief API at ${API_BASE_URL}. ` +
+      `Could not connect to the RU Sick API at ${API_BASE_URL}. ` +
       'Make sure the backend is running and your phone is on the same Wi-Fi network.',
     );
   } finally {

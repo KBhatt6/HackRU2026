@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "RU Relief",
-    "slug": "ru-relief",
+    "name": "RU Sick",
+    "slug": "ru-sick",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -28,13 +28,13 @@
       [
         "expo-location",
         {
-          "locationWhenInUsePermission": "RU Relief uses your location once to estimate walking time and verify stock reports."
+          "locationWhenInUsePermission": "RU Sick uses your location once to estimate walking time and verify stock reports."
         }
       ],
       [
         "expo-image-picker",
         {
-          "photosPermission": "RU Relief uses a selected shelf photo to support a stock report."
+          "photosPermission": "RU Sick uses a selected shelf photo to support a stock report."
         }
       ],
       [
