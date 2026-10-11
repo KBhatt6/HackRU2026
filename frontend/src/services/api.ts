@@ -9,18 +9,26 @@ type SearchInput = {
   longitude?: number;
 };
 
+// An unreachable LAN address never answers, so without a timeout the UI would spin forever.
+const REQUEST_TIMEOUT_MS = 10000;
+
 async function apiRequest<T>(path: string, options?: RequestInit): Promise<T> {
   let response: Response;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
   try {
     response = await fetch(`${API_BASE_URL}${path}`, {
       ...options,
+      signal: controller.signal,
       headers: { 'Content-Type': 'application/json', ...(options?.headers || {}) },
     });
   } catch {
     throw new Error(
       `Could not connect to the RU Relief API at ${API_BASE_URL}. ` +
-        'Make sure the backend is running and your phone is on the same Wi-Fi network.',
+        'Make sure the backend is running, EXPO_PUBLIC_API_URL in frontend/.env uses your computer\'s LAN IP and the backend port, and your phone is on the same Wi-Fi network.',
     );
+  } finally {
+    clearTimeout(timeout);
   }
   const body = await response.json().catch(() => ({}));
   if (!response.ok) {

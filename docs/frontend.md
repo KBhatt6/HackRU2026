@@ -67,8 +67,11 @@ Path alias: `@/*` → `src/*` (`tsconfig.json`).
 
 Single `apiRequest<T>(path, options)` wrapper: prefixes `API_BASE_URL`, sets
 `Content-Type: application/json`, parses JSON, and throws `Error(body.message)`
-for non-2xx responses. Screens catch these and render `ErrorState` or inline
-error text.
+for non-2xx responses. Requests are aborted after `REQUEST_TIMEOUT_MS`
+(10 s) via `AbortController`, so an unreachable `EXPO_PUBLIC_API_URL` (e.g. a
+teammate's LAN IP) surfaces a "Could not connect to the RU Relief API at …"
+error instead of an endless spinner. Screens catch these and render
+`ErrorState` or inline error text.
 
 Exported calls: `searchInventory`, `getProduct`, `getLocation`,
 `getHealthContacts`, `createReservation`, `getReservation`,
