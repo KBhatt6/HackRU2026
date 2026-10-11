@@ -12,6 +12,7 @@ export const MAPBOX_ACCESS_TOKEN = process.env.EXPO_PUBLIC_MAPBOX_ACCESS_TOKEN |
 export function directionsAddress(locationName: string, siteDescription?: string | null) {
   const normalizedName = locationName.toLowerCase();
   if (normalizedName === 'harvest juice bar') return 'Busch Student Center, 604 Bartholomew Rd';
+  if (normalizedName === "woody's cafe") return "Woody's Cafe, Rutgers University, Piscataway, NJ";
   if (normalizedName.includes('cook')) return 'Cook Student Center, Rutgers University-New Brunswick, New Jersey';
   return siteDescription || 'Rutgers University-New Brunswick, New Jersey';
 }

@@ -51,7 +51,6 @@ export default function CartScreen() {
           </Card>
         </>
       )}
-      <Text style={styles.disclosure}>Reservations and delivery fulfillment are simulated for this prototype.</Text>
     </Screen>
   );
 }
