@@ -3,7 +3,7 @@ import { Linking, StyleSheet, Text, View } from 'react-native';
 
 import { Card, ErrorState, LoadingState, PrimaryButton } from '@/components/ui';
 import { Screen } from '@/components/screen';
-import { colors, spacing } from '@/constants/theme';
+import { colors, fonts, spacing } from '@/constants/theme';
 import { getHealthContacts } from '@/services/api';
 import type { HealthContact } from '@/types/api';
 
@@ -86,11 +86,11 @@ function ContactCard({ contact }: { contact: HealthContact }) {
 }
 
 const styles = StyleSheet.create({
-  pageHeading: { color: colors.white, fontSize: 20, lineHeight: 26, fontWeight: '800' },
-  emergencyCard: { backgroundColor: colors.dangerSoft, borderColor: '#F4BCC7' },
+  pageHeading: { fontFamily: fonts.heading, color: colors.ink, fontSize: 20, lineHeight: 26, fontWeight: '800' },
+  emergencyCard: { backgroundColor: colors.dangerSoft, borderColor: colors.danger },
   emergencyLabel: { color: colors.danger, fontSize: 11, fontWeight: '900', letterSpacing: 1.1 },
-  emergencyTitle: { color: colors.danger, fontSize: 28, fontWeight: '900' },
-  emergencyText: { color: '#7B2332', lineHeight: 21 },
+  emergencyTitle: { fontFamily: fonts.heading, color: colors.danger, fontSize: 28, fontWeight: '900' },
+  emergencyText: { color: colors.danger, lineHeight: 21 },
   contactHeader: { flexDirection: 'row', gap: spacing.md, alignItems: 'flex-start' },
   contactCopy: { flex: 1 },
   type: { color: colors.primary, fontSize: 10, fontWeight: '900', letterSpacing: 1 },

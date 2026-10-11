@@ -97,8 +97,8 @@ export default function ReservationScreen() {
 const styles = StyleSheet.create({
   hero: { alignItems: 'center', paddingVertical: spacing.lg },
   status: { color: colors.primary, fontSize: 12, fontWeight: '900', letterSpacing: 1.3 },
-  timer: { color: colors.white, fontSize: 64, lineHeight: 72, fontWeight: '900', fontVariant: ['tabular-nums'] },
-  timerLabel: { color: '#D7D2CD', fontWeight: '700' },
+  timer: { color: colors.ink, fontSize: 64, lineHeight: 72, fontWeight: '900', fontVariant: ['tabular-nums'] },
+  timerLabel: { color: colors.inkMuted, fontWeight: '700' },
   location: { color: colors.primary, fontWeight: '800', fontSize: 16 },
   detail: { color: colors.inkMuted, fontSize: 14, lineHeight: 21 },
   codeCard: { alignItems: 'center', backgroundColor: colors.primarySoft },

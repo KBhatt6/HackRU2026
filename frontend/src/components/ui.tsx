@@ -121,7 +121,7 @@ const styles = StyleSheet.create({
     padding: spacing.md,
     gap: spacing.sm,
   },
-  sectionTitle: { color: colors.ink, fontFamily: fonts.body, fontSize: 20, lineHeight: 26, fontWeight: '800' },
+  sectionTitle: { color: colors.ink, fontFamily: fonts.heading, fontSize: 20, lineHeight: 26, fontWeight: '800' },
   primaryButton: {
     minHeight: 44,
     borderRadius: radius.md,
@@ -147,8 +147,8 @@ const styles = StyleSheet.create({
   secondaryButtonText: { color: colors.primaryDark, fontFamily: fonts.body, fontWeight: '700', fontSize: 15 },
   loading: { paddingVertical: 60, gap: spacing.md, alignItems: 'center' },
   muted: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 14, lineHeight: 21 },
-  errorCard: { backgroundColor: colors.dangerSoft, borderColor: '#F4BCC7' },
+  errorCard: { backgroundColor: colors.dangerSoft, borderColor: colors.danger },
   errorTitle: { color: colors.danger, fontFamily: fonts.body, fontWeight: '800', fontSize: 16 },
-  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 0, borderWidth: 1, borderColor: '#000000' },
+  badge: { alignSelf: 'flex-start', paddingHorizontal: 10, paddingVertical: 5, borderRadius: 0, borderWidth: 1, borderColor: colors.ink },
   badgeText: { fontFamily: fonts.body, fontSize: 12, lineHeight: 16, fontWeight: '800' },
 });

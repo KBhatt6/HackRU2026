@@ -88,6 +88,6 @@ const styles = StyleSheet.create({
   muted: { color: colors.inkMuted, fontFamily: fonts.body, fontSize: 13 },
   payment: { display: 'none' },
   actions: { flexDirection: 'row', gap: spacing.sm, marginTop: spacing.xs, alignItems: 'stretch' },
-  directionsButton: { backgroundColor: '#147BFF', borderRadius: radius.sm, minHeight: 44, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 },
+  directionsButton: { backgroundColor: colors.primaryDark, borderRadius: radius.sm, minHeight: 44, justifyContent: 'center', alignItems: 'center', paddingHorizontal: 6 },
   directionsText: { color: colors.white, fontWeight: '700', fontSize: 15 },
 });
